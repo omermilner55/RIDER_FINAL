@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    tools:context=".RewardsDetails">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:text="RewardDetails"
+        android:textColor="@color/white"
+        android:textSize="25dp" />
+
+    <ImageView
+        android:id="@+id/RewardItem"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:background="@drawable/electric1234"
+        android:layout_marginTop="-680dp"
+        android:layout_gravity="center"
+        />
+
+    <TextView
+        android:id="@+id/RewardDetails"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="REWARDDETAILSREWARDDETAILS"
+        android:layout_gravity="center"
+        android:fontFamily="@font/dinpro_medium"
+        android:textSize="25dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+/>
+    <TextView
+        android:id="@+id/RewardCodeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="Reward Code: "
+        android:textSize="25dp"
+        android:fontFamily="@font/dinpro_medium"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/white"
+        />
+
+    <TextView
+        android:id="@+id/RewardCode"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="12345678987654321258"
+        android:textSize="25dp"
+        android:textColor="#2196F3"
+        android:layout_gravity="center"
+        android:fontFamily="@font/dinpro_medium"
+        />
+
+
+    <TextView
+        android:id="@+id/RewardDesc"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:fontFamily="@font/dinpro_medium"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid autem cum doloremque et eveniet, exercitationem harum impedit incidunt odit, perferendis quo recusandae repellat velit. Accusamus accusantium alias aliquam asperiores autem cumque deleniti dicta dignissimos doloremque, ipsam iste laboriosam non officiis possimus quaerat quas quidem, ratione rerum sed, unde velit vero."
+        android:textColor="#545454"
+        android:textSize="10dp"
+        />
+
+
+
+</LinearLayout>

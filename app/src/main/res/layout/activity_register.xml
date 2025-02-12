@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    tools:context=".Register"
+
+    >
+
+    <TextView
+        android:id="@+id/register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:minHeight="48dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="25dp"
+        android:fontFamily="@font/dinpro_medium"
+        android:text="Register"
+        android:textColor="#4CAF50"
+        />
+
+    <EditText
+        android:id="@+id/editregi1"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="25dp"
+        android:fontFamily="@font/dinpro_medium"
+        android:hint="Please create a username: "
+        android:minHeight="48dp"
+        android:inputType="textPersonName"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:textColorHint="@color/material_dynamic_neutral30"/>
+
+    <EditText
+        android:id="@+id/editregi2"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:minHeight="48dp"
+        android:hint="Please enter your email: "
+        android:fontFamily="@font/dinpro_medium"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:textColorHint="@color/material_dynamic_neutral30"
+
+        />
+    <EditText
+        android:id="@+id/editregi3"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:hint="Please create a password: "
+        android:minHeight="48dp"
+        android:inputType="textPassword"
+        android:fontFamily="@font/dinpro_medium"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:textColorHint="@color/material_dynamic_neutral30" />
+
+    <EditText
+        android:id="@+id/editregi4"
+        android:layout_width="255dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:hint="Please re-enter your password: "
+        android:minHeight="48dp"
+        android:inputType="textPassword"
+        android:fontFamily="@font/dinpro_medium"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:textColorHint="@color/material_dynamic_neutral30"
+
+        />
+    <EditText
+        android:id="@+id/editregi5"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:minHeight="48dp"
+        android:hint="Enter your phone number: "
+        android:inputType="number"
+        android:fontFamily="@font/dinpro_medium"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:textColorHint="@color/material_dynamic_neutral30"
+
+        />
+    <CheckBox
+        android:id="@+id/ShowpwdCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/dinpro_medium"
+        android:textColor="@color/material_dynamic_neutral30"
+        android:text="Show Passwords" />
+
+    <Button
+        android:id="@+id/continue2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center"
+        android:text="Continue"
+        android:textSize="25dp"
+        android:fontFamily="@font/dinpro_medium"
+        android:textColor="#4CAF50"
+        android:backgroundTint="#000000"
+        />
+
+    <Button
+        android:id="@+id/backregi"
+        android:layout_width="wrap_content"
+        android:layout_height="73dp"
+        android:layout_gravity="center"
+        android:backgroundTint="@color/black"
+        android:text="Back"
+        android:fontFamily="@font/dinpro_medium"
+        android:textSize="25dp"
+        android:textColor="#F44336"
+        />
+
+
+
+</LinearLayout>
