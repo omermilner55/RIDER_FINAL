@@ -1,0 +1,16 @@
+@startuml
+class com.example.riderfinal.MustUseGPS {
+- Button enableGPS
+# void onCreate(Bundle)
+- boolean isLocationPermissionGranted()
+- void navigateToHome()
+- void openAppSettings()
+# void onResume()
+- void navigateToLogin()
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.MustUseGPS
+@enduml

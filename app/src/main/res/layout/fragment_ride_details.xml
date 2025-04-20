@@ -3,102 +3,106 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".RideDetailsFragment">
+
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
 
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="start">
+            android:gravity="start"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/dateTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Date"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
+                android:text="Date"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/timeTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Time"
-                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
-                android:layout_marginBottom="8dp" />
+                android:text="Time"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/distanceTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Distance"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp" />
+                android:text="Distance"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/durationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Duration"
-                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
-                android:layout_marginBottom="8dp" />
+                android:text="Duration"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/avgSpeedTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Average Speed"
-                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
-                android:layout_marginBottom="8dp" />
+                android:text="Average Speed"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/startLocationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start Location"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp" />
+                android:text="Start Location"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/endLocationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="End Location"
+                android:layout_marginBottom="8dp"
                 android:fontFamily="@font/dinpro_medium"
-                android:textSize="16sp"
-                android:layout_marginBottom="8dp" />
+                android:text="End Location"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/ridePointsTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ride Points"
-                android:textSize="16sp"
                 android:layout_marginBottom="16dp"
+                android:ellipsize="end"
                 android:fontFamily="@font/dinpro_medium"
                 android:maxLines="5"
-                android:ellipsize="end"
-                android:scrollbars="vertical" />
+                android:scrollbars="vertical"
+                android:text="Ride Points"
+                android:textSize="16sp" />
 
             <ImageView
                 android:id="@+id/mapImageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="16dp"
+                android:scaleType="centerCrop" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

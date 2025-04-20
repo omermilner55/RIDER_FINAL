@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class StartScreenActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
@@ -37,8 +37,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        setContentView(R.layout.activity_start_screen);
         // בדיקת הרשאות מיקום
         if (!arePermissionsGranted()) {
             requestLocationPermission();
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     // המשך זרימת האפליקציה (לאחר מתן הרשאות או אם כבר קיימות)
     private void proceedWithAppFlow() {
-        startRideTracking();
+        startTracking();
         new CountDownTimer(3000, 1000) {
             public void onTick(long millisUntilFinished) {
                 // יכול להישאר ריק אם אין צורך להציג משהו בזמן הספירה
@@ -78,23 +77,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
-                String username = sharedPreferences.getString("username", "");
+                String useremail = sharedPreferences.getString("useremail", "");
                 String password = sharedPreferences.getString("password", "");
 
-                if (username.isEmpty() || password.isEmpty()) {
+                if (useremail.isEmpty() || password.isEmpty()) {
                     // אם אין פרטי התחברות שמורים, מעבר למסך התחברות
-                    Intent intent = new Intent(MainActivity.this, LoginPage.class);
+                    Intent intent = new Intent(StartScreenActivity.this, LoginPage.class);
                     startActivity(intent);
                 } else {
                     // המשתמש כבר מחובר, המשך למסך הבית
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(StartScreenActivity.this, HomeActivity.class);
                     startActivity(intent);
                 }
                 finish(); // סיים את הפעולה של המסך הנוכחי
             }
         }.start();
     }
-    private void startRideTracking() {
+    private void startTracking() {
         Intent serviceIntent = new Intent(this, LocationTrackingService.class);
         serviceIntent.setAction("START_TRACKING");
 
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
                 proceedWithAppFlow();
             } else {
                 // ההרשאה נדחתה, העבר למסך שמבקש מהמשתמש להשתמש ב-GPS
-                Intent intent = new Intent(MainActivity.this, MustUseGPS.class);
+                Intent intent = new Intent(StartScreenActivity.this, MustUseGPS.class);
                 startActivity(intent);
                 finish();
             }

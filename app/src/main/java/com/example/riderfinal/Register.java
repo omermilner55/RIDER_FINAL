@@ -6,10 +6,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ public class Register extends AppCompatActivity {
 
     private Button Continue, Back;
     private EditText Username, Email, Pwd, ReType, Phonenum;
+    private CheckBox PasswordCheckbox;
     private HelperDB helperDB;
 
     @Override
@@ -41,6 +44,7 @@ public class Register extends AppCompatActivity {
         Phonenum = findViewById(R.id.editregi5);
         Continue = findViewById(R.id.continue2);
         Back = findViewById(R.id.backregi);
+        PasswordCheckbox = findViewById(R.id.ShowpwdCheckbox);
 
         // Continue button click listener
         Continue.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +63,16 @@ public class Register extends AppCompatActivity {
                 finish();
             }
         });
+
+        PasswordCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked) {
+                        Pwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                        ReType.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    } else {
+                        Pwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        ReType.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    }
+                });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());

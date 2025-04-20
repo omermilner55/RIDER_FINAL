@@ -52,18 +52,17 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class HomeScreen extends Fragment implements OnMapReadyCallback {
+public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
 
     private ImageButton StartStop;
     private TextView Timertxt, DistanceTxt, SpeedTxt, PointsTxt;
     private Timer timer;
     private TimerTask timerTask;
     private long startTime = 0;
-    private int rideID1 = 0;
+    private int rideID1;
     private HelperDB helperDB;
     private GoogleMap googleMap;
     private boolean isCameraFollowing = true;
-    private RidePointsCalculator pointsCalculator;
     private boolean isPlaying = false;
 
     private final BroadcastReceiver locationReceiver = new BroadcastReceiver() {
@@ -98,7 +97,6 @@ public class HomeScreen extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_screen, container, false);
-        pointsCalculator = new RidePointsCalculator();
         StartStop = view.findViewById(R.id.StartStop);
         Timertxt = view.findViewById(R.id.Timertxt);
         DistanceTxt = view.findViewById(R.id.DistanceTxt);
@@ -114,11 +112,14 @@ public class HomeScreen extends Fragment implements OnMapReadyCallback {
                     stopRideTracking();
                     OmerUtils.updateRideDataInDatabase(requireContext(), helperDB, rideID1, locationList, startTime);
                     stopTimer();
-                    OmerUtils.changeFragmentLayout(frameLayout, 2100);
+                    OmerUtils.changeFragmentLayout(frameLayout, 2000);
                     openLastRideDetailsWithDelay();
                     OmerUtils.resetUi(Timertxt, DistanceTxt, SpeedTxt, PointsTxt);
+                    locationList.clear();
                 } else {
+                    locationList.clear();
                     startRideTracking();
+                    rideID1 = OmerUtils.getNextRideId(getContext());
                     startTimer();
                     new Handler().postDelayed(() -> {
                         if (isAdded()) {
@@ -171,7 +172,6 @@ public class HomeScreen extends Fragment implements OnMapReadyCallback {
         }
         Toast.makeText(requireContext(),
                 "Receiver registered", Toast.LENGTH_SHORT).show();
-        locationList.clear();
     }
 
     private void stopRideTracking() {
@@ -185,7 +185,6 @@ public class HomeScreen extends Fragment implements OnMapReadyCallback {
             e.printStackTrace();
         }
         OmerUtils.saveMapSnapshot(googleMap, locationList, requireContext(), helperDB, rideID1);
-        locationList.clear();
     }
 
 
@@ -346,6 +345,6 @@ public class HomeScreen extends Fragment implements OnMapReadyCallback {
                 cursor.close();
                 db.close();
             }
-        }, 4000);
+        }, 5000);
     }
 }

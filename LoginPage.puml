@@ -1,0 +1,16 @@
+@startuml
+class com.example.riderfinal.LoginPage {
+~ Button regibutton
+~ Button Continue
+~ EditText Email
+~ EditText Pwd
+~ CheckBox PasswordCheckbox
+~ HelperDB helperDb
+# void onCreate(Bundle)
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.LoginPage
+@enduml

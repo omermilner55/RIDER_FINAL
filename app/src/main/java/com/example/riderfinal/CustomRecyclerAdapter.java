@@ -13,10 +13,25 @@ public class CustomRecyclerAdapter extends RecyclerView.Adapter<CustomRecyclerAd
 
     private final String[] items;
     private final int[] itemsImage;
+    private OnRewardClickListener listener;
 
+    // Interface for click event callback
+    public interface OnRewardClickListener {
+        void onRewardClick(int position);
+    }
+
+    // Original constructor
     public CustomRecyclerAdapter(String[] items, int[] itemsImage) {
         this.items = items;
         this.itemsImage = itemsImage;
+        this.listener = null;
+    }
+
+    // New constructor with click listener
+    public CustomRecyclerAdapter(String[] items, int[] itemsImage, OnRewardClickListener listener) {
+        this.items = items;
+        this.itemsImage = itemsImage;
+        this.listener = listener;
     }
 
     @NonNull
@@ -30,6 +45,11 @@ public class CustomRecyclerAdapter extends RecyclerView.Adapter<CustomRecyclerAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.textView.setText(items[position]);
         holder.imageView.setImageResource(itemsImage[position]);
+
+        // Set click listener
+        if (listener != null) {
+            holder.itemView.setOnClickListener(v -> listener.onRewardClick(position));
+        }
     }
 
     @Override

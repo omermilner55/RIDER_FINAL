@@ -4,17 +4,15 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     android:orientation="vertical">
-
     <TextView
+        android:id="@+id/yourpoints"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="The Dream Shop"
+        android:text="Your Points : "
+        android:textSize="20dp"
+        android:textColor="@color/white"
         android:fontFamily="@font/dinpro_medium"
-        android:textColor="#4CAF50"
-        android:layout_gravity="left"
-        android:layout_marginLeft="10dp"
-        android:textSize="30dp" />
-
+        />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/itemsRecyclerView"
         android:layout_width="match_parent"

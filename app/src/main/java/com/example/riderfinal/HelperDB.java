@@ -1,7 +1,12 @@
 package com.example.riderfinal;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -12,7 +17,7 @@ import java.util.ArrayList;
 
 public class HelperDB extends SQLiteOpenHelper {
     public static final int Oldversion = 3;
-    public static final int Version = 50;
+    public static final int Version = 53;
 
     // Database name
     public static final String DB_FILE = "RiderSQL.db";
@@ -24,7 +29,6 @@ public class HelperDB extends SQLiteOpenHelper {
     public static final String USER_PWD = "UserPassword";
     public static final String USER_RETYPE = "UserReType";
     public static final String USER_PHONE = "UserPhone";
-    public static final String USER_IMAGE_URI = "UserImageUri";
     public static final String USER_POINTS = "UserPoints";
 
     // Rides table
@@ -39,20 +43,42 @@ public class HelperDB extends SQLiteOpenHelper {
     public static final String RIDE_AVG_SPEED = "RideAvgSpeed";
     public static final String RIDE_TRUCK_IMG = "RideTruckImg";
     public static final String RIDE_POINTS = "RidePoints";
+    public static final String RIDE_USER_EMAIL = "RideUseremail";
+    // Rewards table
+    public static final String REWARDS_TABLE = "Rewards";
+    public static final String REWARD_ID = "RewardId";
+    public static final String REWARD_NAME = "RewardName";
+    public static final String REWARD_IMG = "RewardImage";
+    public static final String REWARD_POINTS_PRC = "RewardPoints";
+    public static final String REWARD_DESCRIPTION = "RewardDescription";
+
+    // הוספה לחלק העליון של המחלקה - הגדרת טבלה חדשה
+    public static final String USER_REWARDS_TABLE = "UserRewards";
+    public static final String USER_REWARD_ID = "UserRewardId";
+    public static final String USER_REWARD_USERNAME = "UserName";
+    public static final String USER_REWARD_REWARDID = "RewardId";
+    public static final String USER_REWARD_DATE = "RedemptionDate";
+    public static final String USER_REWARD_CODE = "RedemptionCode";
+
 
     public HelperDB(@Nullable Context context) {
         super(context, DB_FILE, null, Version);
     }
 
-    @Override
+    // להוסיף לפונקציית onCreate
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(buildUserTable());
         db.execSQL(buildRidesTable());
+        db.execSQL(buildRewardsTable());
+        db.execSQL(buildUserRewardsTable()); // הוספת הטבלה החדשה
+        insertInitialRewards(db);
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < newVersion) {
-
+            // במקרה שיש צורך בעדכון מבנה מסד הנתונים
+            // אפשר להוסיף כאן לוגיקה לשדרוג מסד הנתונים
         }
     }
 
@@ -63,8 +89,7 @@ public class HelperDB extends SQLiteOpenHelper {
                 USER_PWD + " TEXT, " +
                 USER_RETYPE + " TEXT, " +
                 USER_PHONE + " TEXT, " +
-                USER_POINTS + " INTEGER, " +
-                USER_IMAGE_URI + " TEXT);";
+                USER_POINTS + " INTEGER);";
     }
 
     public String buildRidesTable() {
@@ -78,54 +103,60 @@ public class HelperDB extends SQLiteOpenHelper {
                 RIDE_DURATION + " TEXT, " +
                 RIDE_AVG_SPEED + " TEXT, " +
                 RIDE_TRUCK_IMG + " TEXT, " +
-                RIDE_POINTS + " INTEGER);";
+                RIDE_POINTS + " INTEGER, " +
+                RIDE_USER_EMAIL + " TEXT);";
     }
 
-    public boolean checkUser(String email, String password) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + USERS_TABLE + " WHERE " + USER_EMAIL + " = ? AND " + USER_PWD + " = ?", new String[]{email, password});
-        boolean exists = cursor.getCount() > 0;
-        cursor.close();
-        return exists;
+    public String buildRewardsTable() {
+        return "CREATE TABLE IF NOT EXISTS " + REWARDS_TABLE + " (" +
+                REWARD_ID + " INTEGER PRIMARY KEY, " +
+                REWARD_NAME + " TEXT, " +
+                REWARD_IMG + " TEXT, " +
+                REWARD_POINTS_PRC + " INTEGER, " +
+                REWARD_DESCRIPTION + " TEXT);";
     }
 
-    public ArrayList<Ride> getAllRidesSortedByDate() {
-        ArrayList<Ride> rides = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
+    // להוסיף מתודה חדשה עבור יצירת טבלת UserRewards
+    public String buildUserRewardsTable() {
+        return "CREATE TABLE IF NOT EXISTS " + USER_REWARDS_TABLE + " (" +
+                USER_REWARD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                USER_REWARD_USERNAME + " TEXT, " +
+                USER_REWARD_REWARDID + " INTEGER, " +
+                USER_REWARD_DATE + " TEXT, " +
+                USER_REWARD_CODE + " TEXT, " +
+                "FOREIGN KEY (" + USER_REWARD_USERNAME + ") REFERENCES " + USERS_TABLE + "(" + USER_NAME + "), " +
+                "FOREIGN KEY (" + USER_REWARD_REWARDID + ") REFERENCES " + REWARDS_TABLE + "(" + REWARD_ID + "));";
+    }
 
-        // וודא שהטבלה קיימת לפני ביצוע השאילתה
-        Cursor cursor = db.rawQuery("SELECT * FROM " + RIDES_TABLE + " ORDER BY " + RIDE_DATE + " DESC, " + RIDE_TIME + " DESC", null);
 
-        try {
-            if (cursor.moveToFirst()) {
-                do {
-                    int rideId = cursor.getColumnIndex(RIDE_ID) != -1 ? cursor.getInt(cursor.getColumnIndexOrThrow(RIDE_ID)) : -1;
-                    String rideDate = cursor.getColumnIndex(RIDE_DATE) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_DATE)) : null;
-                    String rideTime = cursor.getColumnIndex(RIDE_TIME) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_TIME)) : null;
-                    String rideDistance = cursor.getColumnIndex(RIDE_DISTANCE) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_DISTANCE)) : null;
-                    String rideDuration = cursor.getColumnIndex(RIDE_DURATION) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_DURATION)) : null;
-                    String rideAvgSpeed = cursor.getColumnIndex(RIDE_AVG_SPEED) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_AVG_SPEED)) : null;
-                    String rideStartLocation = cursor.getColumnIndex(RIDE_START_LOCATION) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_START_LOCATION)) : null;
-                    String rideEndLocation = cursor.getColumnIndex(RIDE_END_LOCATION) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_END_LOCATION)) : null;
-                    int ridePoints = cursor.getColumnIndex(RIDE_POINTS) != -1 ? Integer.parseInt(cursor.getString(cursor.getColumnIndexOrThrow(String.valueOf(RIDE_POINTS)))) : null;
-                    String rideTruckImg = cursor.getColumnIndex(RIDE_TRUCK_IMG) != -1 ? cursor.getString(cursor.getColumnIndexOrThrow(RIDE_TRUCK_IMG)) : null;
+    private void insertInitialRewards(SQLiteDatabase db) {
+        // מערך של פרסים התחלתיים עם האייקונים החדשים
+        Object[][] initialRewards = {
+                // {id, שם, URI של תמונה, נקודות נדרשות, תיאור}
+                {1, "20% discount for a subscription to the Alien Network", "alien1234", 500, "Get an exclusive 20% discount on your subscription to the Alien Network. Experience premium content and exclusive features."},
+                {2, "Free ReShake drink size L", "headphones_icon", 1000, "Enjoy a free large ReShake drink at any of our partner locations. Perfect refreshment after your ride!"},
+                {3, "25% discount in the Sports Hall", "bike_icon", 550, "Save 25% on your next purchase at the Sports Hall. Valid for all equipment and apparel."},
+                {4, "JBJ headphones for 99₪", "helmet_icon", 3000, "Get premium JBJ headphones for just 99₪ instead of the regular price. Limited time offer."},
+                {5, "15% discount at the electric king", "electric1234", 100, "Save 15% on your next purchase at the Electric King. Valid for all electronic devices and accessories."}
+        };
 
-                    // צור אובייקט Ride והוסף לרשימה
-                    Ride ride = new Ride(rideAvgSpeed, rideDate, rideDistance, rideDuration, rideEndLocation, rideTruckImg, rideId, ridePoints, rideStartLocation, rideTime);
-                    rides.add(ride);
-                } while (cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            Log.e("Database Error", "Error reading rides: " + e.getMessage());
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            db.close();
+        // הכנסת כל הפרסים לטבלה
+        for (Object[] reward : initialRewards) {
+            ContentValues values = new ContentValues();
+            values.put(REWARD_ID, (Integer) reward[0]);
+            values.put(REWARD_NAME, (String) reward[1]);
+            values.put(REWARD_IMG, (String) reward[2]);
+            values.put(REWARD_POINTS_PRC, (Integer) reward[3]);
+            values.put(REWARD_DESCRIPTION, (String) reward[4]);
+
+            db.insert(REWARDS_TABLE, null, values);
         }
-
-        return rides;
     }
+
+
+
+
+
 
 
 

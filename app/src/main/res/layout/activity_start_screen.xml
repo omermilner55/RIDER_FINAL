@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".StartScreenActivity">
 
     <TextView
         android:id="@+id/Appname"
@@ -16,12 +16,11 @@
         android:layout_gravity="center"
         android:layout_marginTop="330dp"
         android:ellipsize="start"
-        android:fontFamily="@font/fasterone"
+        android:fontFamily="@font/aura5"
         android:gravity="center"
-        android:text="RIDER"
+        android:text=" RIDER "
         android:textColor="#4CAF50"
         android:textSize="50dp" />
-
 
 
 </LinearLayout>

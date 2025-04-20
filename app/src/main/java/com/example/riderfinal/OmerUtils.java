@@ -1,6 +1,12 @@
 package com.example.riderfinal;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.example.riderfinal.HelperDB.REWARDS_TABLE;
+import static com.example.riderfinal.HelperDB.REWARD_DESCRIPTION;
+import static com.example.riderfinal.HelperDB.REWARD_ID;
+import static com.example.riderfinal.HelperDB.REWARD_IMG;
+import static com.example.riderfinal.HelperDB.REWARD_NAME;
+import static com.example.riderfinal.HelperDB.REWARD_POINTS_PRC;
 import static com.example.riderfinal.HelperDB.RIDES_TABLE;
 import static com.example.riderfinal.HelperDB.RIDE_AVG_SPEED;
 import static com.example.riderfinal.HelperDB.RIDE_DATE;
@@ -12,9 +18,18 @@ import static com.example.riderfinal.HelperDB.RIDE_POINTS;
 import static com.example.riderfinal.HelperDB.RIDE_START_LOCATION;
 import static com.example.riderfinal.HelperDB.RIDE_TIME;
 import static com.example.riderfinal.HelperDB.RIDE_TRUCK_IMG;
+import static com.example.riderfinal.HelperDB.RIDE_USER_EMAIL;
 import static com.example.riderfinal.HelperDB.USERS_TABLE;
+import static com.example.riderfinal.HelperDB.USER_EMAIL;
 import static com.example.riderfinal.HelperDB.USER_NAME;
+import static com.example.riderfinal.HelperDB.USER_PHONE;
 import static com.example.riderfinal.HelperDB.USER_POINTS;
+import static com.example.riderfinal.HelperDB.USER_PWD;
+import static com.example.riderfinal.HelperDB.USER_REWARDS_TABLE;
+import static com.example.riderfinal.HelperDB.USER_REWARD_CODE;
+import static com.example.riderfinal.HelperDB.USER_REWARD_DATE;
+import static com.example.riderfinal.HelperDB.USER_REWARD_REWARDID;
+import static com.example.riderfinal.HelperDB.USER_REWARD_USERNAME;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -26,6 +41,7 @@ import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -43,6 +59,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -51,14 +68,13 @@ public class OmerUtils {
     private static final float MIN_LEGAL_SPEED = 5.0f; // km/h
     private static final float MAX_LEGAL_SPEED = 26.5f; // km/h
     private static final float PENALTY_SPEED_THRESHOLD = 27.0f; // km/h
-    private static final long CONTINUOUS_LEGAL_RIDE_THRESHOLD = 5 * 60 * 1000; // 5 minutes in milliseconds
+    private static final long CONTINUOUS_LEGAL_RIDE_THRESHOLD = 30 * 60 * 1000; // 30 minutes in milliseconds
     private static int Ridepoints = 0;
     private static double lastLegalDistance = 0;
     private static long lastLegalSpeedTimestamp = 0;
     private static long continuousLegalRideStartTime = 0;
     private static boolean isRidingLegal = false;
     private static int bonusAwarded = 0;
-
 
 
     // Format current time
@@ -85,6 +101,7 @@ public class OmerUtils {
         }
         return "Unknown location";
     }
+
     // Calculate distance
     public static double calculateDistance(List<Location> locationList) {
         double totalDistance = 0;
@@ -106,6 +123,7 @@ public class OmerUtils {
             throw new NullPointerException("FrameLayout is null. Make sure you are passing a valid view.");
         }
     }
+
     // Saving map photo path to database
     public static String saveBitmapToInternalStorage(Context context, Bitmap bitmap, int rideId) {
         FileOutputStream fos = null;
@@ -133,6 +151,9 @@ public class OmerUtils {
         try {
             SQLiteDatabase db = helperDB.getWritableDatabase();
 
+            // קבלת שם המשתמש הנוכחי מה-SharedPreferences
+            SharedPreferences prefs = context.getSharedPreferences("user_prefs", MODE_PRIVATE);
+            String useremail = prefs.getString("useremail", "");
 
             ContentValues values = new ContentValues();
             values.put(RIDE_ID, rideID);
@@ -141,6 +162,7 @@ public class OmerUtils {
             values.put(RIDE_POINTS, 0);
             values.put(RIDE_START_LOCATION, locationList.isEmpty() ? "התחלה" :
                     getLocationAddress(context, locationList.get(0)));
+            values.put(RIDE_USER_EMAIL, useremail); // הוספת שם המשתמש
 
             long newRowId = db.insert(RIDES_TABLE, null, values);
 
@@ -149,7 +171,6 @@ public class OmerUtils {
             } else {
                 Toast.makeText(context, "נסיעה חדשה נוספה בהצלחה. ID: " + rideID, Toast.LENGTH_SHORT).show();
             }
-            db.close();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(context, "שגיאה: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -162,12 +183,9 @@ public class OmerUtils {
             SQLiteDatabase db = helperDB.getWritableDatabase();
             Location lastLocation = locationList.get(locationList.size() - 1);
 
-            long elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
-            double distance = calculateDistance(locationList);
-            double avgSpeed = distance / 1000.0 / (elapsedTime / 3600.0);
-
-            // חישוב הנקודות הסופיות
-            float finalSpeed = lastLocation.getSpeed() * 3.6f;
+            long elapsedTime = (System.currentTimeMillis() - startTime) / 1000; // בשניות
+            double distance = calculateDistance(locationList); // במטרים
+            double avgSpeed = elapsedTime > 0 ? (distance / elapsedTime) * 3.6 : 0;
 
 
             ContentValues values = new ContentValues();
@@ -175,31 +193,31 @@ public class OmerUtils {
             values.put(RIDE_DURATION, formatTime(System.currentTimeMillis() - startTime));
             values.put(RIDE_DISTANCE, formatDistance(distance));
             values.put(RIDE_AVG_SPEED, formatSpeed((float) avgSpeed));
-
+            values.put(RIDE_POINTS, Ridepoints);
             int updated = db.update(RIDES_TABLE, values, RIDE_ID + " = ?",
                     new String[]{String.valueOf(rideID)});
 
             if (updated > 0) {
                 updateUserPoints(context, db, Ridepoints);
             }
-            db.close();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(context, "Error updating ride: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
     public static void updateUserPoints(Context context, SQLiteDatabase db, int newPoints) {
         SharedPreferences prefs = context.getSharedPreferences("user_prefs", MODE_PRIVATE);
-        String username = prefs.getString("username", "");
-
+        String useremail = prefs.getString("useremail", "");
+        Users user = OmerUtils.getUserByEmail(context, useremail);
         Cursor cursor = db.query(USERS_TABLE, new String[]{USER_POINTS},
-                USER_NAME + "=?", new String[]{username}, null, null, null);
+                USER_NAME + "=?", new String[]{user.getUserName()}, null, null, null);
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             int currentPoints = cursor.getInt(0);
             ContentValues values = new ContentValues();
-            values.put(USER_POINTS, currentPoints + newPoints);
-            db.update(USERS_TABLE, values, USER_NAME + "=?", new String[]{username});
+            values.put(USER_POINTS, 100000);
+            db.update(USERS_TABLE, values, USER_NAME + "=?", new String[]{user.getUserName()});
             cursor.close();
         }
     }
@@ -217,26 +235,23 @@ public class OmerUtils {
     public static String formatDistance(double distance) {
         DecimalFormat df = new DecimalFormat("#.##");
         return distance < 1000 ?
-                (int)distance + " m" :
+                (int) distance + " m" :
                 df.format(distance / 1000) + " km";
     }
 
     // Format speed from m/s to km/h
-    public static String formatSpeed(float speedMps) {
+    public static String formatSpeed(float speedKph) {
         DecimalFormat df = new DecimalFormat("#.##");
-        float speedKph = speedMps * 3.6f;
         return df.format(speedKph) + " km/h";
     }
-
 
     public static void resetUi(TextView timerTxt, TextView distanceTxt,
                                TextView speedTxt, TextView pointsTxt) {
         timerTxt.setText("00:00:00");
-        distanceTxt.setText("Distance: 0 m");
-        speedTxt.setText("  Speed: 0 km/h");
-        pointsTxt.setText("  Points: 0 pt");
+        distanceTxt.setText("  Distance: 000 m");
+        speedTxt.setText("Speed: 00.00 km/h");
+        pointsTxt.setText("Points: 0000 pt");
     }
-
 
     // צריך לשנות את הפונקציה ב-OmerUtils ל:
     public static Polyline initializePolyline(GoogleMap googleMap) {
@@ -305,13 +320,14 @@ public class OmerUtils {
             });
         }
     }
+
     public static void updateValuesInUi(List<Location> locationList, boolean isPlaying,
                                         TextView distanceTxt, TextView speedTxt, TextView pointsTxt) {
         if (!isPlaying) {
-            distanceTxt.setText("Distance: 0 m");
-            speedTxt.setText("  Speed: 0 km/h");
-            pointsTxt.setText("  Points: 0 pt");
-            resetPointsTracking(); // הוספנו את זה
+            distanceTxt.setText("Distance: 000 m");
+            speedTxt.setText("Speed: 000.00 km/h");
+            pointsTxt.setText("Points: 0000 pt");
+            resetPointsTracking();
             return;
         }
 
@@ -321,19 +337,19 @@ public class OmerUtils {
 
             // Update distance display
             if (distance < 1000) {
-                distanceTxt.setText("Distance: " + (int) distance + " m");
+                distanceTxt.setText("  Distance: " + (int) distance + " m");
             } else {
-                distanceTxt.setText("Distance: " + df.format(distance / 1000) + " km");
+                distanceTxt.setText("  Distance: " + df.format(distance / 1000) + " km");
             }
 
             // Get current speed and update display
             Location lastLocation = locationList.get(locationList.size() - 1);
             float speedKmh = lastLocation.getSpeed() * 3.6f;
-            speedTxt.setText("  Speed: " + df.format(speedKmh) + " km/h");
+            speedTxt.setText("Speed: " + df.format(speedKmh) + " km/h");
 
             // Calculate points based on speed and distance
             int displaypoints = calculatePoints(speedKmh, distance, System.currentTimeMillis());
-            pointsTxt.setText("  Points: " + displaypoints + " pt");
+            pointsTxt.setText("Points: " + displaypoints + " pt");
         }
     }
 
@@ -358,21 +374,20 @@ public class OmerUtils {
 
             // בדיקת בונוס על נסיעה חוקית רציפה
             long legalRideDuration = currentTime - continuousLegalRideStartTime;
-            if (legalRideDuration >= CONTINUOUS_LEGAL_RIDE_THRESHOLD && bonusAwarded == 0) {
-                Ridepoints += 10; // בונוס על 5 דקות נסיעה חוקית
-                bonusAwarded = 1;
+            if (legalRideDuration >= CONTINUOUS_LEGAL_RIDE_THRESHOLD) {
+                Ridepoints += 10; // בונוס על 10 דקות נסיעה חוקית
+
             }
         } else {
             // אם המהירות לא חוקית
             isRidingLegal = false;
-            bonusAwarded = 0;
 
             // הורדת נקודות על חריגת מהירות
             if (currentSpeed > PENALTY_SPEED_THRESHOLD) {
                 if (currentSpeed > 30) {
-                    Ridepoints = Math.max(0, Ridepoints - 10); // הורדת 15 נקודות כשהמהירות מעל 30
+                    Ridepoints = Math.max(0, Ridepoints - 5); // הורדת 5 נקודות כשהמהירות מעל 30
                 } else {
-                    Ridepoints = Math.max(0, Ridepoints - 5); // הורדת 5 נקודות כשהמהירות מעל 26.5
+                    Ridepoints = Math.max(0, Ridepoints - 1); // הורדת 1 נקודות כשהמהירות מעל 26.5
                 }
             }
         }
@@ -390,6 +405,397 @@ public class OmerUtils {
         bonusAwarded = 0;
     }
 
+    public static ArrayList<Ride> getAllRidesSortedByDate(Context context) {
+        ArrayList<Ride> rides = new ArrayList<>();
 
+        // Get database instance from HelperDB
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+
+        // Get current username from SharedPreferences
+        SharedPreferences prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String email = prefs.getString("useremail", "");
+
+        // Get user by email using HelperDB method
+        Users user = OmerUtils.getUserByEmail(context, email);
+        Toast.makeText(context, "User: " + user.getUserName(), Toast.LENGTH_SHORT).show();
+        if (user == null) {
+            Log.e("DatabaseUtility", "User not found for email: " + email);
+            db.close();
+            return rides;
+        }
+
+        // Query rides table for the current user's rides
+        Cursor cursor = db.rawQuery("SELECT * FROM " + RIDES_TABLE +
+                        " WHERE " + RIDE_USER_EMAIL + " = ?" +
+                        " ORDER BY " + RIDE_DATE + " DESC, " + RIDE_TIME + " DESC",
+                new String[]{user.getUserEmail()});
+
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    int rideId = cursor.getColumnIndex(RIDE_ID) != -1 ?
+                            cursor.getInt(cursor.getColumnIndexOrThrow(RIDE_ID)) : -1;
+
+                    String rideDate = cursor.getColumnIndex(RIDE_DATE) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_DATE)) : null;
+
+                    String rideTime = cursor.getColumnIndex(RIDE_TIME) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_TIME)) : null;
+
+                    String rideDistance = cursor.getColumnIndex(RIDE_DISTANCE) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_DISTANCE)) : null;
+
+                    String rideDuration = cursor.getColumnIndex(RIDE_DURATION) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_DURATION)) : null;
+
+                    String rideAvgSpeed = cursor.getColumnIndex(RIDE_AVG_SPEED) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_AVG_SPEED)) : null;
+
+                    String rideStartLocation = cursor.getColumnIndex(RIDE_START_LOCATION) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_START_LOCATION)) : null;
+
+                    String rideEndLocation = cursor.getColumnIndex(RIDE_END_LOCATION) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_END_LOCATION)) : null;
+
+                    int ridePoints = cursor.getColumnIndex(RIDE_POINTS) != -1 ?
+                            cursor.getInt(cursor.getColumnIndexOrThrow(RIDE_POINTS)) : 0;
+
+                    String rideTruckImg = cursor.getColumnIndex(RIDE_TRUCK_IMG) != -1 ?
+                            cursor.getString(cursor.getColumnIndexOrThrow(RIDE_TRUCK_IMG)) : null;
+
+                    // Create Ride object and add to list
+                    Ride ride = new Ride(rideAvgSpeed, rideDate, rideDistance, rideDuration,
+                            rideEndLocation, rideTruckImg, rideId, ridePoints,
+                            rideStartLocation, rideTime);
+
+                    rides.add(ride);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Toast.makeText(context, "Error retrieving rides: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+
+        return rides;
+    }
+
+    /**
+     * Update user points
+     *
+     * @param context   The application context
+     * @param username  Username to update
+     * @param newPoints New points value
+     * @return true if update was successful, false otherwise
+     */
+
+
+    /**
+     * Purchase a reward for a user
+     *
+     * @param context  The application context
+     * @param email    User's email
+     * @param rewardId ID of the reward to purchase
+     * @return Redemption code if successful, null otherwise
+     */
+    public static String purchaseReward(Context context, String email, int rewardId) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = null;
+
+        try {
+            db = helperDB.getWritableDatabase();
+
+            // בדוק האם המשתמש והפרס קיימים
+            Users user = getUserByEmail(context, email);
+            Reward reward = getRewardById(context, rewardId);
+
+            if (user == null || reward == null) {
+                Log.e("DatabaseUtility", "User or reward not found");
+                return null; // משתמש או פרס לא נמצאו
+            }
+
+            // בדוק האם למשתמש יש מספיק נקודות
+            if (user.getUserPoints() < reward.getRewardPointsPrice()) {
+                Log.e("DatabaseUtility", "Not enough points. User has: " +
+                        user.getUserPoints() + ", Reward costs: " + reward.getRewardPointsPrice());
+                return null; // אין מספיק נקודות
+            }
+
+            // בדוק האם המשתמש כבר רכש את הפרס הזה
+            if (hasUserPurchasedReward(context, user.getUserName(), rewardId)) {
+                // אם המשתמש כבר רכש את הפרס, החזר את הקוד הקיים
+                return getSavedRedemptionCode(context, user.getUserName(), rewardId);
+            }
+
+            // חישוב נקודות חדש לאחר הרכישה
+            int newPoints = user.getUserPoints() - reward.getRewardPointsPrice();
+
+            // עדכון נקודות המשתמש בטרנזקציה
+            db.beginTransaction();
+            try {
+                // עדכון נקודות בטבלת המשתמשים
+                ContentValues userValues = new ContentValues();
+                userValues.put(USER_POINTS, newPoints);
+                int updatedRows = db.update(USERS_TABLE, userValues,
+                        USER_NAME + "=?", new String[]{user.getUserName()});
+
+                if (updatedRows <= 0) {
+                    Log.e("DatabaseUtility", "Failed to update user points");
+                    return null; // עדכון נקודות נכשל
+                }
+
+                // יצירת קוד מימוש ייחודי
+                String redemptionCode = generateRedemptionCode(rewardId);
+
+                // שמירת הרכישה בטבלת UserRewards
+                ContentValues rewardValues = new ContentValues();
+                rewardValues.put(USER_REWARD_USERNAME, user.getUserName());
+                rewardValues.put(USER_REWARD_REWARDID, rewardId);
+                rewardValues.put(USER_REWARD_DATE, getCurrentDate());
+                rewardValues.put(USER_REWARD_CODE, redemptionCode);
+
+                long result = db.insert(USER_REWARDS_TABLE, null, rewardValues);
+
+                if (result == -1) {
+                    Log.e("DatabaseUtility", "Failed to record reward purchase");
+                    return null; // הוספת רשומת רכישה נכשלה
+                }
+
+                // אם הגענו לכאן, הכל הצליח - אישור הטרנזקציה
+                db.setTransactionSuccessful();
+
+                return redemptionCode;
+
+            } finally {
+                // סיום הטרנזקציה בכל מקרה
+                db.endTransaction();
+            }
+
+        } catch (Exception e) {
+            Log.e("DatabaseUtility", "Error purchasing reward: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (db != null && db.isOpen()) {
+                db.close();
+            }
+        }
+    }
+
+    /**
+     * Check if a user has already purchased a specific reward
+     *
+     * @param context  The application context
+     * @param username Username to check
+     * @param rewardId Reward ID to check
+     * @return true if user has purchased the reward, false otherwise
+     */
+    public static boolean hasUserPurchasedReward(Context context, String username, int rewardId) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            cursor = db.query(
+                    USER_REWARDS_TABLE,
+                    null,
+                    USER_REWARD_USERNAME + "=? AND " + USER_REWARD_REWARDID + "=?",
+                    new String[]{username, String.valueOf(rewardId)},
+                    null,
+                    null,
+                    null
+            );
+
+            return cursor != null && cursor.getCount() > 0;
+        } catch (Exception e) {
+            Log.e("DatabaseUtility", "Error checking user purchase: " + e.getMessage());
+            return false;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+    }
+
+    /**
+     * Check if user credentials are valid
+     *
+     * @param context  The application context
+     * @param email    User's email
+     * @param password User's password
+     * @return true if credentials are valid, false otherwise
+     */
+    public static boolean checkUser(Context context, String email, String password) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + USERS_TABLE + " WHERE " + USER_EMAIL + " = ? AND " + USER_PWD + " = ?",
+                new String[]{email, password});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+    /**
+     * Get the next ride ID to use when creating a new ride
+     *
+     * @param context The application context
+     * @return Next available ride ID
+     */
+    public static int getNextRideId(Context context) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT MAX(" + RIDE_ID + ") FROM " + RIDES_TABLE, null);
+
+        int nextId = 1; // Default starting ID
+        if (cursor.moveToFirst() && !cursor.isNull(0)) {
+            nextId = cursor.getInt(0) + 1;
+        }
+        cursor.close();
+        db.close();
+        return nextId;
+    }
+
+    /**
+     * Get current date in string format
+     *
+     * @return Current date string in "yyyy-MM-dd HH:mm:ss" format
+     */
+    private static String getCurrentDate() {
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return dateFormat.format(new java.util.Date());
+    }
+
+    /**
+     * Generate a unique redemption code for a reward
+     *
+     * @param rewardId ID of the reward
+     * @return Unique redemption code
+     */
+    private static String generateRedemptionCode(int rewardId) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String randomDigits = String.valueOf((int) (Math.random() * 10000));
+        return "RWD-" + rewardId + "-" + timestamp.substring(timestamp.length() - 5) + "-" + randomDigits;
+    }
+
+    public static Users getUserByEmail(Context context, String email) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+        Users user = null;
+        Cursor cursor = null;
+
+        try {
+            cursor = db.query(
+                    USERS_TABLE,
+                    null,
+                    USER_EMAIL + "=?",
+                    new String[]{email},
+                    null,
+                    null,
+                    null
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                String userName = cursor.getString(cursor.getColumnIndexOrThrow(USER_NAME));
+                String userEmail = cursor.getString(cursor.getColumnIndexOrThrow(USER_EMAIL));
+                String userPwd = cursor.getString(cursor.getColumnIndexOrThrow(USER_PWD));
+                String userPhone = cursor.getString(cursor.getColumnIndexOrThrow(USER_PHONE));
+                int userPoints = cursor.getInt(cursor.getColumnIndexOrThrow(USER_POINTS));
+
+                user = new Users(userName, userEmail, userPwd, "null", userPhone, userPoints);
+            }
+        } catch (Exception e) {
+            Log.e("DatabaseUtility", "Error retrieving user data: " + e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+
+        return user;
+    }
+
+    public static Reward getRewardById(Context context, int rewardId) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+        Reward reward = null;
+
+        try {
+            String query = "SELECT * FROM " + REWARDS_TABLE + " WHERE " + REWARD_ID + " = " + rewardId;
+            Cursor cursor = db.rawQuery(query, null);
+
+            if (cursor.moveToFirst()) {
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(REWARD_NAME));
+                String img = cursor.getString(cursor.getColumnIndexOrThrow(REWARD_IMG));
+                int points = cursor.getInt(cursor.getColumnIndexOrThrow(REWARD_POINTS_PRC));
+                String desc = cursor.getString(cursor.getColumnIndexOrThrow(REWARD_DESCRIPTION));
+
+                reward = new Reward(rewardId, name, img, points, desc);
+            }
+
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            Log.e("DatabaseUtility", "Error retrieving reward data: " + e.getMessage());
+        }
+
+        return reward;
+    }
+
+
+    public static boolean deleteRide(Context context, int rideId) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getWritableDatabase();
+
+        try {
+            // Delete the ride with the specified ID
+            int result = db.delete(RIDES_TABLE, RIDE_ID + " = ?", new String[]{String.valueOf(rideId)});
+
+            // Return true if at least one row was deleted
+            return result > 0;
+        } catch (Exception e) {
+            Log.e("DatabaseUtility", "Error deleting ride: " + e.getMessage());
+            return false;
+        } finally {
+            db.close();
+        }
+    }
+
+    public static String getSavedRedemptionCode(Context context, String username, int rewardId) {
+        HelperDB helperDB = new HelperDB(context);
+        SQLiteDatabase db = helperDB.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            cursor = db.query(
+                    HelperDB.USER_REWARDS_TABLE,
+                    new String[]{HelperDB.USER_REWARD_CODE},
+                    HelperDB.USER_REWARD_USERNAME + "=? AND " + HelperDB.USER_REWARD_REWARDID + "=?",
+                    new String[]{username, String.valueOf(rewardId)},
+                    null,
+                    null,
+                    HelperDB.USER_REWARD_DATE + " DESC"
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndexOrThrow(HelperDB.USER_REWARD_CODE));
+            }
+            return "Code not found";
+        } catch (Exception e) {
+            Log.e("Database Error", "Error retrieving redemption code: " + e.getMessage());
+            return "Code not found";
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+    }
 
 }

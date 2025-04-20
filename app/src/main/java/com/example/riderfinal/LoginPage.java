@@ -1,10 +1,15 @@
 package com.example.riderfinal;
+import static java.security.AccessController.getContext;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -16,6 +21,7 @@ public class LoginPage extends AppCompatActivity {
     Button Continue;
     EditText Email;
     EditText Pwd;
+    CheckBox PasswordCheckbox;
     HelperDB helperDb;
 
     @Override
@@ -44,7 +50,6 @@ public class LoginPage extends AppCompatActivity {
             public void onClick(View v) {
                 String email = Email.getText().toString();
                 String password = Pwd.getText().toString();
-                String username = Email.getText().toString();
 
                 // Basic input validation
                 if (TextUtils.isEmpty(email)) {
@@ -60,8 +65,17 @@ public class LoginPage extends AppCompatActivity {
                     return;
                 }
                 else {
-                    boolean checkuser = helperDb.checkUser(email, password);
+                    boolean checkuser = OmerUtils.checkUser(LoginPage.this,email, password);
                     if (checkuser == true) {
+                        SharedPreferences preferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = preferences.edit();
+
+                        // שמירת פרטי המשתמש
+                        editor.putString("useremail", email);
+                        editor.putString("password", password);
+
+                        // שמירת הנתונים
+                        editor.commit();
                         Intent intent = new Intent(LoginPage.this, HomeActivity.class);
                         startActivity(intent);
                         finish();
@@ -75,6 +89,20 @@ public class LoginPage extends AppCompatActivity {
 
             }
         });
+
+        PasswordCheckbox = findViewById(R.id.ShowpwdCheckbox);
+
+        PasswordCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                Pwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            } else {
+                Pwd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+            }
+        });
+
     }
 
 }
+
+

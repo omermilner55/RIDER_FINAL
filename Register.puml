@@ -1,0 +1,18 @@
+@startuml
+class com.example.riderfinal.Register {
+- Button Continue
+- EditText Username
+- CheckBox PasswordCheckbox
+- HelperDB helperDB
+# void onCreate(Bundle)
+- void handleRegistration()
+- boolean validateInput(String,String,String,String,String)
+- boolean isFieldExists(String,String)
+- boolean registerUser(String,String,String,String)
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.Register
+@enduml

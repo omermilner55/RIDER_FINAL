@@ -1,0 +1,17 @@
+@startuml
+class com.example.riderfinal.StartScreenActivity {
+- {static} int LOCATION_PERMISSION_REQUEST_CODE
+- BroadcastReceiver locationReceiver
+# void onCreate(Bundle)
+- boolean arePermissionsGranted()
+- void requestLocationPermission()
+- void proceedWithAppFlow()
+- void startTracking()
++ void onRequestPermissionsResult(int,String[],int[])
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.StartScreenActivity
+@enduml
