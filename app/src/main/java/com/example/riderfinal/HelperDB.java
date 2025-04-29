@@ -27,7 +27,6 @@ public class HelperDB extends SQLiteOpenHelper {
     public static final String USER_NAME = "UserName";
     public static final String USER_EMAIL = "UserEmail";
     public static final String USER_PWD = "UserPassword";
-    public static final String USER_RETYPE = "UserReType";
     public static final String USER_PHONE = "UserPhone";
     public static final String USER_POINTS = "UserPoints";
 
@@ -87,7 +86,6 @@ public class HelperDB extends SQLiteOpenHelper {
                 USER_NAME + " TEXT PRIMARY KEY, " +
                 USER_EMAIL + " TEXT, " +
                 USER_PWD + " TEXT, " +
-                USER_RETYPE + " TEXT, " +
                 USER_PHONE + " TEXT, " +
                 USER_POINTS + " INTEGER);";
     }

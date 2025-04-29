@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 
-public class Users implements Serializable {
+public class User implements Serializable {
 
     private String userName;
     private String userEmail;
@@ -12,9 +12,8 @@ public class Users implements Serializable {
     private String userRetype;
     private String userPhone;
     private int userPoints;
-    private HelperDB helperDB;
 
-    public Users(String userName, String userEmail, String userPwd, String userRetype, String userPhone, int userPoints) {
+    public User(String userName, String userEmail, String userPwd, String userRetype, String userPhone, int userPoints) {
         this.userName = userName;
         this.userEmail = userEmail;
         this.userPwd = userPwd;

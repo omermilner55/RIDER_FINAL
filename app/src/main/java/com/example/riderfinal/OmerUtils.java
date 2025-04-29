@@ -149,20 +149,35 @@ public class OmerUtils {
 
     public static void insertNewRideToDatabase(Context context, HelperDB helperDB, int rideID, List<Location> locationList) {
         try {
+            // בדיקה שהרשימה לא ריקה
+            if (locationList == null || locationList.isEmpty()) {
+                Toast.makeText(context, "שגיאה: רשימת מיקומים ריקה", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             SQLiteDatabase db = helperDB.getWritableDatabase();
 
             // קבלת שם המשתמש הנוכחי מה-SharedPreferences
             SharedPreferences prefs = context.getSharedPreferences("user_prefs", MODE_PRIVATE);
             String useremail = prefs.getString("useremail", "");
 
+            if (useremail == null || useremail.isEmpty()) {
+                Toast.makeText(context, "שגיאה: משתמש לא מזוהה", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String startLocation = getLocationAddress(context, locationList.get(0));
+            if (startLocation == null || startLocation.isEmpty()) {
+                startLocation = "התחלה"; // ערך ברירת מחדל במקרה שה-geocoding נכשל
+            }
+
             ContentValues values = new ContentValues();
             values.put(RIDE_ID, rideID);
             values.put(RIDE_DATE, getTodaysDate());
             values.put(RIDE_TIME, getCurrentTime());
             values.put(RIDE_POINTS, 0);
-            values.put(RIDE_START_LOCATION, locationList.isEmpty() ? "התחלה" :
-                    getLocationAddress(context, locationList.get(0)));
-            values.put(RIDE_USER_EMAIL, useremail); // הוספת שם המשתמש
+            values.put(RIDE_START_LOCATION, startLocation);
+            values.put(RIDE_USER_EMAIL, useremail);
 
             long newRowId = db.insert(RIDES_TABLE, null, values);
 
@@ -180,6 +195,13 @@ public class OmerUtils {
     public static void updateRideDataInDatabase(Context context, HelperDB helperDB, int rideID,
                                                 List<Location> locationList, long startTime) {
         try {
+            // בדיקה שהרשימה לא ריקה
+            if (locationList == null || locationList.isEmpty()) {
+                Log.e("OmerUtils", "Location list is empty or null, cannot update ride data");
+                Toast.makeText(context, "שגיאה: נתוני מיקום חסרים", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             SQLiteDatabase db = helperDB.getWritableDatabase();
             Location lastLocation = locationList.get(locationList.size() - 1);
 
@@ -187,36 +209,49 @@ public class OmerUtils {
             double distance = calculateDistance(locationList); // במטרים
             double avgSpeed = elapsedTime > 0 ? (distance / elapsedTime) * 3.6 : 0;
 
+            String endLocation = getLocationAddress(context, lastLocation);
+            String duration = formatTime(System.currentTimeMillis() - startTime);
+            String distanceStr = formatDistance(distance);
+            String avgSpeedStr = formatSpeed((float) avgSpeed);
+
+            // בדיקה שכל הערכים הקריטיים לא null
+            if (endLocation == null || duration == null || distanceStr == null || avgSpeedStr == null) {
+                Log.e("OmerUtils", "One or more critical ride values are null");
+                Toast.makeText(context, "שגיאה: נתוני רכיבה חסרים", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             ContentValues values = new ContentValues();
-            values.put(RIDE_END_LOCATION, getLocationAddress(context, lastLocation));
-            values.put(RIDE_DURATION, formatTime(System.currentTimeMillis() - startTime));
-            values.put(RIDE_DISTANCE, formatDistance(distance));
-            values.put(RIDE_AVG_SPEED, formatSpeed((float) avgSpeed));
+            values.put(RIDE_END_LOCATION, endLocation);
+            values.put(RIDE_DURATION, duration);
+            values.put(RIDE_DISTANCE, distanceStr);
+            values.put(RIDE_AVG_SPEED, avgSpeedStr);
             values.put(RIDE_POINTS, Ridepoints);
+
             int updated = db.update(RIDES_TABLE, values, RIDE_ID + " = ?",
                     new String[]{String.valueOf(rideID)});
 
             if (updated > 0) {
                 updateUserPoints(context, db, Ridepoints);
+            } else {
+                Log.e("OmerUtils", "Failed to update ride with ID: " + rideID);
             }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(context, "Error updating ride: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
     public static void updateUserPoints(Context context, SQLiteDatabase db, int newPoints) {
         SharedPreferences prefs = context.getSharedPreferences("user_prefs", MODE_PRIVATE);
         String useremail = prefs.getString("useremail", "");
-        Users user = OmerUtils.getUserByEmail(context, useremail);
+        User user = OmerUtils.getUserByEmail(context, useremail);
         Cursor cursor = db.query(USERS_TABLE, new String[]{USER_POINTS},
                 USER_NAME + "=?", new String[]{user.getUserName()}, null, null, null);
 
         if (cursor.moveToFirst()) {
             int currentPoints = cursor.getInt(0);
             ContentValues values = new ContentValues();
-            values.put(USER_POINTS, 100000);
+            values.put(USER_POINTS, currentPoints + newPoints);
             db.update(USERS_TABLE, values, USER_NAME + "=?", new String[]{user.getUserName()});
             cursor.close();
         }
@@ -417,7 +452,7 @@ public class OmerUtils {
         String email = prefs.getString("useremail", "");
 
         // Get user by email using HelperDB method
-        Users user = OmerUtils.getUserByEmail(context, email);
+        User user = OmerUtils.getUserByEmail(context, email);
         Toast.makeText(context, "User: " + user.getUserName(), Toast.LENGTH_SHORT).show();
         if (user == null) {
             Log.e("DatabaseUtility", "User not found for email: " + email);
@@ -510,7 +545,7 @@ public class OmerUtils {
             db = helperDB.getWritableDatabase();
 
             // בדוק האם המשתמש והפרס קיימים
-            Users user = getUserByEmail(context, email);
+            User user = getUserByEmail(context, email);
             Reward reward = getRewardById(context, rewardId);
 
             if (user == null || reward == null) {
@@ -683,10 +718,10 @@ public class OmerUtils {
         return "RWD-" + rewardId + "-" + timestamp.substring(timestamp.length() - 5) + "-" + randomDigits;
     }
 
-    public static Users getUserByEmail(Context context, String email) {
+    public static User getUserByEmail(Context context, String email) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();
-        Users user = null;
+        User user = null;
         Cursor cursor = null;
 
         try {
@@ -707,7 +742,7 @@ public class OmerUtils {
                 String userPhone = cursor.getString(cursor.getColumnIndexOrThrow(USER_PHONE));
                 int userPoints = cursor.getInt(cursor.getColumnIndexOrThrow(USER_POINTS));
 
-                user = new Users(userName, userEmail, userPwd, "null", userPhone, userPoints);
+                user = new User(userName, userEmail, userPwd, "null", userPhone, userPoints);
             }
         } catch (Exception e) {
             Log.e("DatabaseUtility", "Error retrieving user data: " + e.getMessage());

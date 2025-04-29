@@ -61,12 +61,12 @@ public class MustUseGPS extends AppCompatActivity {
 
         // טוען SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        String username = sharedPreferences.getString("username", "");
-        String password = sharedPreferences.getString("password", "");
+        String useremail = sharedPreferences.getString("useremail", "");
+        String userpassword = sharedPreferences.getString("password", "");
 
         // בדיקת הרשאות
         if (isLocationPermissionGranted()) {
-            if (username.isEmpty() || password.isEmpty()) {
+            if (useremail.isEmpty() || userpassword.isEmpty()) {
                 // אין שם משתמש או סיסמה - מעבר למסך התחברות
                 navigateToLogin();
             } else {

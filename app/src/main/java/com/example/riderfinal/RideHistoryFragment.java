@@ -23,17 +23,14 @@ public class RideHistoryFragment extends Fragment {
     private RecyclerView recyclerView;
     private RideAdapter adapter;
     private ArrayList<Ride> rideList;
-    private HelperDB helperDB;
 
     @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_ride_history, container, false);
 
-            helperDB = new HelperDB(getContext());
-            SQLiteDatabase db = helperDB.getReadableDatabase();
             recyclerView = view.findViewById(R.id.recyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            TextView logo = view.findViewById(R.id.logo);
+
 
             rideList = OmerUtils.getAllRidesSortedByDate(getContext());
             Toast.makeText(getContext(), "Number of rides: " + rideList.size(), Toast.LENGTH_SHORT).show();
@@ -85,3 +82,4 @@ public class RideHistoryFragment extends Fragment {
                 .show();
     }
 }
+

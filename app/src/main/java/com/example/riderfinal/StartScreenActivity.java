@@ -78,9 +78,9 @@ public class StartScreenActivity extends AppCompatActivity {
             public void onFinish() {
                 SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
                 String useremail = sharedPreferences.getString("useremail", "");
-                String password = sharedPreferences.getString("password", "");
+                String userpassword = sharedPreferences.getString("password", "");
 
-                if (useremail.isEmpty() || password.isEmpty()) {
+                if (useremail.isEmpty() || userpassword.isEmpty()) {
                     // אם אין פרטי התחברות שמורים, מעבר למסך התחברות
                     Intent intent = new Intent(StartScreenActivity.this, LoginPage.class);
                     startActivity(intent);

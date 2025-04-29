@@ -17,8 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.OnRewardClickListener {
 
-    private HelperDB helperDB;
-    private Users user;
+    private User user;
     private int[] rewardIds = {1, 2, 3, 4, 5}; // Store reward IDs for reference
 
     @Nullable
@@ -26,7 +25,6 @@ public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_shop, container, false);
-        helperDB = new HelperDB(requireContext());
         TextView yourpoints = view.findViewById(R.id.yourpoints);
         RecyclerView recyclerView = view.findViewById(R.id.itemsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -50,10 +48,10 @@ public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.
         // Fixed array size to match items array
         int[] itemsImage = {
                 R.drawable.alien1234,
+                R.drawable.healthshake,
                 R.drawable.sports1234,
                 R.drawable.hf1,
-                R.drawable.electric1234,
-                R.drawable.hf1
+                R.drawable.electric1234
         };
 
         // Set adapter with click listener

@@ -75,17 +75,17 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
                     OmerUtils.updateValuesInUi(locationList, isPlaying, DistanceTxt, SpeedTxt, PointsTxt);
 
 
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-                        // שימוש ב-animate במקום newLatLngZoom לתנועה חלקה יותר
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f));
+                    // שימוש ב-animate במקום newLatLngZoom לתנועה חלקה יותר
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17f));
 
-                        // עדכון ה-Polyline
-                        if (polyline != null) {
-                            List<LatLng> points = polyline.getPoints();
-                            points.add(latLng);
-                            polyline.setPoints(points);
-                        }
+                    // עדכון ה-Polyline
+                    if (polyline != null) {
+                        List<LatLng> points = polyline.getPoints();
+                        points.add(latLng);
+                        polyline.setPoints(points);
+                    }
 
                 }
 
@@ -104,37 +104,37 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
         PointsTxt = view.findViewById(R.id.PointsTxt);
         helperDB = new HelperDB(requireContext());
         FrameLayout frameLayout = requireActivity().findViewById(R.id.fragment_container);
-            StartStop.setOnClickListener(v -> {
-                if (isPlaying) {
-                    StartStop.setBackgroundResource(R.drawable.startbut);
-                    ImageButton profilebt = requireActivity().findViewById(R.id.ProfileStButton);
-                    profilebt.setVisibility(View.VISIBLE);
-                    stopRideTracking();
-                    OmerUtils.updateRideDataInDatabase(requireContext(), helperDB, rideID1, locationList, startTime);
-                    stopTimer();
-                    OmerUtils.changeFragmentLayout(frameLayout, 2000);
-                    openLastRideDetailsWithDelay();
-                    OmerUtils.resetUi(Timertxt, DistanceTxt, SpeedTxt, PointsTxt);
-                    locationList.clear();
-                } else {
-                    locationList.clear();
-                    startRideTracking();
-                    rideID1 = OmerUtils.getNextRideId(getContext());
-                    startTimer();
-                    new Handler().postDelayed(() -> {
-                        if (isAdded()) {
-                            OmerUtils.insertNewRideToDatabase(requireContext(), helperDB, rideID1, locationList);
-                        }
-                    }, 4000);
+        StartStop.setOnClickListener(v -> {
+            if (isPlaying) {
+                StartStop.setBackgroundResource(R.drawable.startbut);
+                ImageButton profilebt = requireActivity().findViewById(R.id.DetailsStButton);
+                profilebt.setVisibility(View.VISIBLE);
+                stopRideTracking();
+                OmerUtils.updateRideDataInDatabase(requireContext(), helperDB, rideID1, locationList, startTime);
+                stopTimer();
+                OmerUtils.changeFragmentLayout(frameLayout, 2000);
+                openLastRideDetailsWithDelay();
+                OmerUtils.resetUi(Timertxt, DistanceTxt, SpeedTxt, PointsTxt);
+                locationList.clear();
+            } else {
+                locationList.clear();
+                startRideTracking();
+                rideID1 = OmerUtils.getNextRideId(getContext());
+                startTimer();
+                new Handler().postDelayed(() -> {
+                    if (isAdded()) {
+                        OmerUtils.insertNewRideToDatabase(requireContext(), helperDB, rideID1, locationList);
+                    }
+                }, 4000);
 
-                    polyline = OmerUtils.initializePolyline(googleMap);
-                    ImageButton profilebt = requireActivity().findViewById(R.id.ProfileStButton);
-                    profilebt.setVisibility(View.INVISIBLE);
-                    OmerUtils.changeFragmentLayout(frameLayout, LinearLayout.LayoutParams.MATCH_PARENT);
-                    StartStop.setBackgroundResource(R.drawable.stopbut);
-                }
-                isPlaying = !isPlaying;
-            });
+                polyline = OmerUtils.initializePolyline(googleMap);
+                ImageButton profilebt = requireActivity().findViewById(R.id.DetailsStButton);
+                profilebt.setVisibility(View.INVISIBLE);
+                OmerUtils.changeFragmentLayout(frameLayout, LinearLayout.LayoutParams.MATCH_PARENT);
+                StartStop.setBackgroundResource(R.drawable.stopbut);
+            }
+            isPlaying = !isPlaying;
+        });
 
 
         // Initialize map fragment
@@ -258,23 +258,23 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requireContext().registerReceiver(
-                        locationReceiver,
-                        new IntentFilter("location_update"),
-                        Context.RECEIVER_EXPORTED
-                );
-                if (polyline != null) {
-                    points = polyline.getPoints();
-                    Toast.makeText(requireContext(), String.valueOf(points), Toast.LENGTH_SHORT).show();
-                    polyline.setPoints(points);
-                }
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    requireContext().registerReceiver(locationReceiver, new IntentFilter("location_update"), Context.RECEIVER_EXPORTED);
-                }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(
+                    locationReceiver,
+                    new IntentFilter("location_update"),
+                    Context.RECEIVER_EXPORTED
+            );
+            if (polyline != null) {
+                points = polyline.getPoints();
+                Toast.makeText(requireContext(), String.valueOf(points), Toast.LENGTH_SHORT).show();
+                polyline.setPoints(points);
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireContext().registerReceiver(locationReceiver, new IntentFilter("location_update"), Context.RECEIVER_EXPORTED);
             }
         }
+    }
 
 
     @Override
@@ -298,53 +298,84 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void openLastRideDetailsWithDelay() {
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("Ride Completed")
-                .setMessage("Opening ride details in 5 seconds...")
-                .setCancelable(false)
-                .create();
+        // בדוק קודם אם הרכיבה נשמרה כראוי עם כל הנתונים הנדרשים
+        SQLiteDatabase dbCheck = helperDB.getReadableDatabase();
+        String checkQuery = "SELECT * FROM " + RIDES_TABLE + " WHERE " + RIDE_ID + " = ? AND " +
+                RIDE_DISTANCE + " IS NOT NULL AND " +
+                RIDE_DURATION + " IS NOT NULL AND " +
+                RIDE_AVG_SPEED + " IS NOT NULL AND " +
+                RIDE_END_LOCATION + " IS NOT NULL";
 
-        dialog.show();
+        Cursor checkCursor = dbCheck.rawQuery(checkQuery, new String[]{String.valueOf(rideID1)});
 
-        new Handler().postDelayed(() -> {
-            if (isAdded()) {
-                if (polyline != null) {
-                    polyline.remove();
-                }
-                dialog.dismiss();  // סגירת הדיאלוג
+        // בדוק אם הרכיבה קיימת וכל הנתונים הקריטיים קיימים
+        if (checkCursor.moveToFirst()) {
+            // הנתונים תקינים - הצג דיאלוג ופתח מסך פרטים
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                    .setTitle("Ride Completed")
+                    .setMessage("Opening ride details in 5 seconds...")
+                    .setCancelable(false)
+                    .create();
 
-                SQLiteDatabase db = helperDB.getReadableDatabase();
-                String query = "SELECT * FROM " + RIDES_TABLE + " WHERE " + RIDE_ID + " = ?";
-                Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(rideID1)});
+            dialog.show();
 
-                if (cursor.moveToFirst()) {
-                    @SuppressLint("Range") Ride currentRide = new Ride(
-                            cursor.getString(cursor.getColumnIndex(RIDE_AVG_SPEED)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_DATE)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_DISTANCE)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_DURATION)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_END_LOCATION)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_TRUCK_IMG)),
-                            cursor.getInt(cursor.getColumnIndex(RIDE_ID)),
-                            cursor.getInt(cursor.getColumnIndex(RIDE_POINTS)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_START_LOCATION)),
-                            cursor.getString(cursor.getColumnIndex(RIDE_TIME))
-                    );
+            new Handler().postDelayed(() -> {
+                if (isAdded()) {
+                    if (polyline != null) {
+                        polyline.remove();
+                    }
+                    dialog.dismiss();  // סגירת הדיאלוג
 
-                    RideDetailsFragment detailsFragment = new RideDetailsFragment();
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("ride", currentRide);
-                    detailsFragment.setArguments(bundle);
+                    SQLiteDatabase db = helperDB.getReadableDatabase();
+                    String query = "SELECT * FROM " + RIDES_TABLE + " WHERE " + RIDE_ID + " = ?";
+                    Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(rideID1)});
 
-                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                    transaction.replace(R.id.fragment_container, detailsFragment);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
+                    if (cursor.moveToFirst()) {
+                        @SuppressLint("Range") Ride currentRide = new Ride(
+                                cursor.getString(cursor.getColumnIndex(RIDE_AVG_SPEED)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_DATE)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_DISTANCE)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_DURATION)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_END_LOCATION)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_TRUCK_IMG)),
+                                cursor.getInt(cursor.getColumnIndex(RIDE_ID)),
+                                cursor.getInt(cursor.getColumnIndex(RIDE_POINTS)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_START_LOCATION)),
+                                cursor.getString(cursor.getColumnIndex(RIDE_TIME))
+                        );
+
+                        RideDetailsFragment detailsFragment = new RideDetailsFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("ride", currentRide);
+                        detailsFragment.setArguments(bundle);
+
+                        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragment_container, detailsFragment);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
+                    }
                     startRideTracking();
+                    cursor.close();
+                    db.close();
                 }
-                cursor.close();
-                db.close();
-            }
-        }, 5000);
+            }, 5000);
+        } else {
+            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                    .setTitle("An error occurred while saving the ride")
+                    .setMessage("Close the app and start a new ride")
+                    .setCancelable(false)
+                    .create();
+
+            dialog.show();
+            OmerUtils.deleteRide(requireContext(), rideID1);
+            RideHistoryFragment historyFragment = new RideHistoryFragment();
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, historyFragment)
+                    .addToBackStack(null)
+                    .commit();
+
+        }
+        checkCursor.close();
+        dbCheck.close();
     }
 }

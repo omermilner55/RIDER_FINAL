@@ -24,7 +24,7 @@ public class Ride implements Serializable {
         return rideId;
     }
 
-    public String getDate() {return date;}
+    public String getDate() { return date;}
 
     public String getTime() {
         return "Ride Start Time: " + time;
