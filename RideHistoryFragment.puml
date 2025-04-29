@@ -1,0 +1,15 @@
+    @startuml
+    class com.example.riderfinal.RideHistoryFragment {
+    - RecyclerView recyclerView
+    - RideAdapter adapter
+    - ArrayList<Ride> rideList
+    - HelperDB helperDB
+    + View onCreateView(LayoutInflater,ViewGroup,Bundle)
+    - void showDeleteConfirmationDialog(Ride,int)
+    }
+
+
+
+
+    androidx.fragment.app.Fragment <|-- com.example.riderfinal.RideHistoryFragment
+    @enduml

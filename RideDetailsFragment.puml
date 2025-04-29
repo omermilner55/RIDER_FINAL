@@ -1,0 +1,14 @@
+@startuml
+class com.example.riderfinal.RideDetailsFragment {
+- TextView ridePointsTextView
+- ImageView mapImageView
+- Ride ride
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void populateRideDetails()
+}
+
+
+
+
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.RideDetailsFragment
+@enduml

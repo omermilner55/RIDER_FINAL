@@ -1,0 +1,15 @@
+@startuml
+class com.example.riderfinal.ShoppingFragment {
+- HelperDB helperDB
+- Users user
+- int[] rewardIds
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onRewardClick(int)
+}
+
+
+
+
+com.example.riderfinal.OnRewardClickListener <|.. com.example.riderfinal.ShoppingFragment
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.ShoppingFragment
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+class com.example.riderfinal.RewardsDetails {
+- Reward reward
+- HelperDB helperDB
+- Users user
+- String useremail
+- TextView rewardPointsText
+- TextView statusMessage
+- Button purchaseButton
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void purchaseReward()
+}
+
+
+
+
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.RewardsDetails
+@enduml

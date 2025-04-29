@@ -1,0 +1,14 @@
+@startuml
+class com.example.riderfinal.HomeActivity {
+- String currentUsername
+# void onCreate(Bundle)
+- void showUserPopupMenu(View)
+- void logout()
+- void replaceFragment(Fragment)
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.HomeActivity
+@enduml
