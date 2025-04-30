@@ -1,0 +1,370 @@
+@startuml
+class com.example.riderfinal.RideAdapter {
+- ArrayList<Ride> rideList
+- Context context
+- OnItemClickListener clickListener
+- OnItemLongClickListener longClickListener
++ RideViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(RideViewHolder,int)
++ int getItemCount()
++ void setOnItemClickListener(OnItemClickListener)
++ void setOnItemLongClickListener(OnItemLongClickListener)
+}
+
+
+interface com.example.riderfinal.RideAdapter$OnItemClickListener {
+~ void onItemClick(int)
+}
+
+interface com.example.riderfinal.RideAdapter$OnItemLongClickListener {
+~ void onItemLongClick(int)
+}
+
+class com.example.riderfinal.RideAdapter$RideViewHolder {
+~ TextView dateTextView
+~ ImageView mapImageView
+}
+
+class com.example.riderfinal.HelperDB {
++ {static} int Oldversion
++ {static} int Version
++ {static} String DB_FILE
++ {static} String USERS_TABLE
++ {static} String USER_NAME
++ {static} String USER_EMAIL
++ {static} String USER_PWD
++ {static} String USER_PHONE
++ {static} String USER_POINTS
++ {static} String RIDES_TABLE
++ {static} String RIDE_ID
++ {static} String RIDE_DATE
++ {static} String RIDE_TIME
++ {static} String RIDE_START_LOCATION
++ {static} String RIDE_END_LOCATION
++ {static} String RIDE_DISTANCE
++ {static} String RIDE_DURATION
++ {static} String RIDE_AVG_SPEED
++ {static} String RIDE_TRUCK_IMG
++ {static} String RIDE_POINTS
++ {static} String RIDE_USER_EMAIL
++ {static} String REWARDS_TABLE
++ {static} String REWARD_ID
++ {static} String REWARD_NAME
++ {static} String REWARD_IMG
++ {static} String REWARD_POINTS_PRC
++ {static} String REWARD_DESCRIPTION
++ {static} String USER_REWARDS_TABLE
++ {static} String USER_REWARD_ID
++ {static} String USER_REWARD_USERNAME
++ {static} String USER_REWARD_REWARDID
++ {static} String USER_REWARD_DATE
++ {static} String USER_REWARD_CODE
++ void onCreate(SQLiteDatabase)
++ void onUpgrade(SQLiteDatabase,int,int)
++ String buildUserTable()
++ String buildRidesTable()
++ String buildRewardsTable()
++ String buildUserRewardsTable()
+- void insertInitialRewards(SQLiteDatabase)
+}
+
+
+class com.example.riderfinal.StartScreenActivity {
+- {static} int LOCATION_PERMISSION_REQUEST_CODE
+- BroadcastReceiver locationReceiver
+# void onCreate(Bundle)
+- boolean arePermissionsGranted()
+- void requestLocationPermission()
+- void proceedWithAppFlow()
+- void startTracking()
++ void onRequestPermissionsResult(int,String[],int[])
+}
+
+
+class com.example.riderfinal.CustomRecyclerAdapter {
+- String[] items
+- int[] itemsImage
+- OnRewardClickListener listener
++ ViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ViewHolder,int)
++ int getItemCount()
+}
+
+
+interface com.example.riderfinal.CustomRecyclerAdapter$OnRewardClickListener {
+~ void onRewardClick(int)
+}
+
+class com.example.riderfinal.CustomRecyclerAdapter$ViewHolder {
+~ TextView textView
+~ ImageView imageView
+}
+
+class com.example.riderfinal.RewardsDetails {
+- Reward reward
+- HelperDB helperDB
+- User user
+- String useremail
+- TextView rewardPointsText
+- TextView statusMessage
+- Button purchaseButton
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void purchaseReward()
+}
+
+
+class com.example.riderfinal.HomeActivity {
+- String currentUsername
+~ ImageButton detailsButton
+# void onCreate(Bundle)
+- void showUserPopupMenu(View)
+- void logout()
+- void replaceFragment(Fragment)
+}
+
+
+class com.example.riderfinal.OmerUtils {
+- {static} float MIN_LEGAL_SPEED
+- {static} float MAX_LEGAL_SPEED
+- {static} float PENALTY_SPEED_THRESHOLD
+- {static} long CONTINUOUS_LEGAL_RIDE_THRESHOLD
+- {static} int Ridepoints
+- {static} double lastLegalDistance
+- {static} long lastLegalSpeedTimestamp
+- {static} long continuousLegalRideStartTime
+- {static} boolean isRidingLegal
+- {static} int bonusAwarded
++ {static} String getCurrentTime()
++ {static} String getTodaysDate()
++ {static} String getLocationAddress(Context,Location)
++ {static} double calculateDistance(List<Location>)
++ {static} void changeFragmentLayout(FrameLayout,int)
++ {static} String saveBitmapToInternalStorage(Context,Bitmap,int)
++ {static} void insertNewRideToDatabase(Context,HelperDB,int,List<Location>)
++ {static} void updateRideDataInDatabase(Context,HelperDB,int,List<Location>,long)
++ {static} void updateUserPoints(Context,SQLiteDatabase,int)
++ {static} String formatTime(long)
++ {static} String formatDistance(double)
++ {static} String formatSpeed(float)
++ {static} void resetUi(TextView,TextView,TextView,TextView)
++ {static} Polyline initializePolyline(GoogleMap)
++ {static} void saveMapSnapshot(GoogleMap,List<Location>,Context,HelperDB,int)
++ {static} void updateValuesInUi(List<Location>,boolean,TextView,TextView,TextView)
++ {static} int calculatePoints(float,double,long)
++ {static} void resetPointsTracking()
++ {static} ArrayList<Ride> getAllRidesSortedByDate(Context)
++ {static} String purchaseReward(Context,String,int)
++ {static} boolean hasUserPurchasedReward(Context,String,int)
++ {static} boolean checkUser(Context,String,String)
++ {static} int getNextRideId(Context)
+- {static} String getCurrentDate()
+- {static} String generateRedemptionCode(int)
++ {static} User getUserByEmail(Context,String)
++ {static} Reward getRewardById(Context,int)
++ {static} boolean deleteRide(Context,int)
++ {static} String getSavedRedemptionCode(Context,String,int)
+}
+
+
+class com.example.riderfinal.Reward {
+- int rewardId
+- String rewardName
+- String rewardImg
+- int rewardPointsPrice
+- String rewardDescription
++ int getRewardId()
++ void setRewardId(int)
++ String getRewardName()
++ void setRewardName(String)
++ String getRewardImg()
++ void setRewardImg(String)
++ int getRewardPointsPrice()
++ void setRewardPointsPrice(int)
++ String getRewardDescription()
++ void setRewardDescription(String)
++ String toString()
+}
+
+
+class com.example.riderfinal.User {
+- String userName
+- String userEmail
+- String userPwd
+- String userRetype
+- String userPhone
+- int userPoints
++ String getUserName()
++ void setUserName(String)
++ String getUserEmail()
++ void setUserEmail(String)
++ String getUserPwd()
++ void setUserPwd(String)
++ String getUserRetype()
++ void setUserRetype(String)
++ String getUserPhone()
++ void setUserPhone(String)
++ int getUserPoints()
++ void setUserPoints(int)
++ String toString()
+}
+
+
+class com.example.riderfinal.Register {
+- Button Continue
+- EditText Username
+- CheckBox PasswordCheckbox
+- HelperDB helperDB
+# void onCreate(Bundle)
+- void handleRegistration()
+- boolean validateInput(String,String,String,String,String)
+- boolean isFieldExists(String,String)
+- boolean registerUser(String,String,String,String)
+}
+
+
+class com.example.riderfinal.RideHistoryFragment {
+- RecyclerView recyclerView
+- RideAdapter adapter
+- ArrayList<Ride> rideList
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void showDeleteConfirmationDialog(Ride,int)
+}
+
+
+class com.example.riderfinal.ShoppingFragment {
+- User user
+- int[] rewardIds
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onRewardClick(int)
+}
+
+
+class com.example.riderfinal.RideDetailsFragment {
+- TextView ridePointsTextView
+- ImageView mapImageView
+- Ride ride
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void populateRideDetails()
+}
+
+
+class com.example.riderfinal.LocationTrackingService {
+- {static} String CHANNEL_ID
+- {static} int NOTIFICATION_ID
+- FusedLocationProviderClient fusedLocationClient
+- LocationCallback locationCallback
+- LocationRequest locationRequest
++ {static} List<Location> locationList
+- boolean isTracking
+- {static} LocationTrackingService instance
++ {static} List<LatLng> points
++ {static} Polyline polyline
++ {static} LocationTrackingService getInstance()
++ void onCreate()
+- void initLocationTracking()
+- void createNotificationChannel()
++ int onStartCommand(Intent,int,int)
+- void startTracking()
+- void stopTracking()
+- Notification buildNotification()
+- void updateNotification(Location)
++ List<Location> getLocationList()
++ void clearLocations()
++ boolean isTracking()
++ IBinder onBind(Intent)
++ void onDestroy()
+}
+
+
+class com.example.riderfinal.LoginPage {
+~ Button regibutton
+~ Button Continue
+~ EditText Email
+~ EditText Pwd
+~ CheckBox PasswordCheckbox
+~ HelperDB helperDb
+# void onCreate(Bundle)
+}
+
+
+class com.example.riderfinal.MustUseGPS {
+- Button enableGPS
+# void onCreate(Bundle)
+- boolean isLocationPermissionGranted()
+- void navigateToHome()
+- void openAppSettings()
+# void onResume()
+- void navigateToLogin()
+}
+
+
+class com.example.riderfinal.HomeScreenFragment {
+- ImageButton StartStop
+- TextView Timertxt
+- Timer timer
+- TimerTask timerTask
+- long startTime
+- int rideID1
+- HelperDB helperDB
+- GoogleMap googleMap
+- boolean isCameraFollowing
+- boolean isPlaying
+- BroadcastReceiver locationReceiver
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void startRideTracking()
+- void stopRideTracking()
+- void startTimer()
+- void stopTimer()
++ void onMapReady(GoogleMap)
++ void onResume()
++ void onPause()
++ void onDestroy()
+- void openLastRideDetailsWithDelay()
+}
+
+
+class com.example.riderfinal.Ride {
+- int rideId
+- String date
++ int getRideId()
++ String getDate()
++ String getTime()
++ String getDistance()
++ String getDuration()
++ String getAvgSpeed()
++ String getStartLocation()
++ String getEndLocation()
++ String getMapImagePath()
++ String getRidePoints()
+}
+
+
+
+
+com.example.riderfinal.Adapter <|-- com.example.riderfinal.RideAdapter
+com.example.riderfinal.RideAdapter +.. com.example.riderfinal.RideAdapter$OnItemClickListener
+com.example.riderfinal.RideAdapter +.. com.example.riderfinal.RideAdapter$OnItemLongClickListener
+com.example.riderfinal.RideAdapter +.. com.example.riderfinal.RideAdapter$RideViewHolder
+com.example.riderfinal.ViewHolder <|-- com.example.riderfinal.RideAdapter$RideViewHolder
+android.database.sqlite.SQLiteOpenHelper <|-- com.example.riderfinal.HelperDB
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.StartScreenActivity
+com.example.riderfinal.Adapter <|-- com.example.riderfinal.CustomRecyclerAdapter
+com.example.riderfinal.CustomRecyclerAdapter +.. com.example.riderfinal.CustomRecyclerAdapter$OnRewardClickListener
+com.example.riderfinal.CustomRecyclerAdapter +.. com.example.riderfinal.CustomRecyclerAdapter$ViewHolder
+com.example.riderfinal.ViewHolder <|-- com.example.riderfinal.CustomRecyclerAdapter$ViewHolder
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.RewardsDetails
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.HomeActivity
+java.io.Serializable <|.. com.example.riderfinal.Reward
+java.io.Serializable <|.. com.example.riderfinal.User
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.Register
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.RideHistoryFragment
+com.example.riderfinal.OnRewardClickListener <|.. com.example.riderfinal.ShoppingFragment
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.ShoppingFragment
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.RideDetailsFragment
+android.app.Service <|-- com.example.riderfinal.LocationTrackingService
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.LoginPage
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.MustUseGPS
+com.google.android.gms.maps.OnMapReadyCallback <|.. com.example.riderfinal.HomeScreenFragment
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.HomeScreenFragment
+java.io.Serializable <|.. com.example.riderfinal.Ride
+@enduml

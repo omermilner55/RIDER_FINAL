@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 
 import java.io.Serializable;
 
+// מחלקה המייצגת פרס/הטבה שהמשתמש יכול לקבל תמורת נקודות
 public class Reward implements Serializable {
-    private int rewardId;
-    private String rewardName;
-    private String rewardImg;
-    private int rewardPointsPrice;
-    private String rewardDescription;
+    // מאפייני הפרס
+    private int rewardId;                // מזהה ייחודי של הפרס
+    private String rewardName;           // שם הפרס
+    private String rewardImg;            // נתיב לתמונת הפרס
+    private int rewardPointsPrice;       // מחיר הפרס בנקודות
+    private String rewardDescription;    // תיאור הפרס
 
+    // בנאי המחלקה
     public Reward(int rewardId, String rewardName, String rewardImg, int rewardPointsPrice, String rewardDescription) {
         this.rewardId = rewardId;
         this.rewardName = rewardName;
@@ -19,10 +22,12 @@ public class Reward implements Serializable {
         this.rewardDescription = rewardDescription;
     }
 
+    // פונקציות גישה (Getters)
     public int getRewardId() {
         return rewardId;
     }
 
+    // פונקציות עדכון (Setters)
     public void setRewardId(int rewardId) {
         this.rewardId = rewardId;
     }
@@ -59,6 +64,7 @@ public class Reward implements Serializable {
         this.rewardDescription = rewardDescription;
     }
 
+    // מתודה המחזירה ייצוג טקסטואלי של האובייקט
     @NonNull
     @Override
     public String toString() {

@@ -2,10 +2,16 @@ package com.example.riderfinal;
 
 import java.io.Serializable;
 
+// מחלקה המייצגת רכיבת אופניים שהמשתמש ביצע
 public class Ride implements Serializable {
-    private int rideId, ridePoints;
-    private String date, time, distance, duration, avgSpeed, startLocation, endLocation, mapImagePath;
+    // מאפייני הרכיבה
+    private int rideId, ridePoints;              // מזהה רכיבה ונקודות שנצברו
+    private String date, time;                   // תאריך ושעת התחלה
+    private String distance, duration, avgSpeed; // מרחק, משך זמן ומהירות ממוצעת
+    private String startLocation, endLocation;   // מיקום התחלה וסיום
+    private String mapImagePath;                 // נתיב לתמונת מפת המסלול
 
+    // בנאי המחלקה
     public Ride(String avgSpeed, String date, String distance, String duration, String endLocation, String mapImagePath, int rideId, int ridePoints, String startLocation, String time) {
         this.avgSpeed = avgSpeed;
         this.date = date;
@@ -19,7 +25,7 @@ public class Ride implements Serializable {
         this.time = time;
     }
 
-    // Getters and Setters
+    // פונקציות גישה (Getters)
     public int getRideId() {
         return rideId;
     }

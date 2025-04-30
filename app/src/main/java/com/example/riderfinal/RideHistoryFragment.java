@@ -1,85 +1,92 @@
-package com.example.riderfinal;
+    package com.example.riderfinal;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
+    import android.app.AlertDialog;
+    import android.content.Context;
+    import android.database.sqlite.SQLiteDatabase;
+    import android.os.Bundle;
+    import android.view.LayoutInflater;
+    import android.view.View;
+    import android.view.ViewGroup;
+    import android.widget.ImageButton;
+    import android.widget.TextView;
+    import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+    import androidx.fragment.app.Fragment;
+    import androidx.fragment.app.FragmentTransaction;
+    import androidx.recyclerview.widget.LinearLayoutManager;
+    import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+    import java.util.ArrayList;
 
-public class RideHistoryFragment extends Fragment {
+    // פרגמנט המציג היסטוריית רכיבות של המשתמש
+    public class RideHistoryFragment extends Fragment {
 
-    private RecyclerView recyclerView;
-    private RideAdapter adapter;
-    private ArrayList<Ride> rideList;
+        // רכיבי ממשק
+        private RecyclerView recyclerView;            // רכיב תצוגת הרשימה
+        private RideAdapter adapter;                  // מתאם הרשימה
+        private ArrayList<Ride> rideList;             // רשימת הרכיבות להצגה
 
-    @Override
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            // ניפוח פריסת הפרגמנט
             View view = inflater.inflate(R.layout.fragment_ride_history, container, false);
 
+            // אתחול והגדרת הרסייקלר-ויו
             recyclerView = view.findViewById(R.id.recyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-
+            // קבלת רשימת הרכיבות ממסד הנתונים
             rideList = OmerUtils.getAllRidesSortedByDate(getContext());
-            Toast.makeText(getContext(), "Number of rides: " + rideList.size(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "מספר רכיבות: " + rideList.size(), Toast.LENGTH_SHORT).show();
+
+            // יצירת המתאם והצמדתו לרסייקלר-ויו
             adapter = new RideAdapter(rideList, requireContext());
             recyclerView.setAdapter(adapter);
 
-    // For regular click
-        adapter.setOnItemClickListener(position -> {
-            if (position >= 0 && position < rideList.size()) {
-                Ride ride = rideList.get(position);
+            // הגדרת מאזין ללחיצה רגילה על פריט
+            adapter.setOnItemClickListener(position -> {
+                if (position >= 0 && position < rideList.size()) {
+                    Ride ride = rideList.get(position);
 
-                RideDetailsFragment detailsFragment = new RideDetailsFragment();
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("ride", ride);
-                detailsFragment.setArguments(bundle);
+                    // יצירת פרגמנט פרטי רכיבה והעברת פרטי הרכיבה אליו
+                    RideDetailsFragment detailsFragment = new RideDetailsFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("ride", ride);
+                    detailsFragment.setArguments(bundle);
 
-                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, detailsFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                    // החלפת הפרגמנט הנוכחי בפרגמנט פרטי הרכיבה
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container, detailsFragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }
+            });
 
-
-            }
-        });
-
-        adapter.setOnItemLongClickListener(position -> {
-            if (position >= 0 && position < rideList.size()) {
-                Ride ride = rideList.get(position);
-                showDeleteConfirmationDialog(ride, position);
-            }
-
-        });
+            // הגדרת מאזין ללחיצה ארוכה על פריט (למחיקה)
+            adapter.setOnItemLongClickListener(position -> {
+                if (position >= 0 && position < rideList.size()) {
+                    Ride ride = rideList.get(position);
+                    showDeleteConfirmationDialog(ride, position);
+                }
+            });
 
             return view;
         }
-    private void showDeleteConfirmationDialog(Ride ride, int position) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete Ride")
-                .setMessage("Are you sure you want to delete this ride?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    // First delete from database
-                    OmerUtils.deleteRide(getContext(),ride.getRideId());
 
-                    // Then remove from list and update adapter
-                    rideList.remove(position);
-                    adapter.notifyDataSetChanged(); // Use this instead of notifyItemRemoved
-                })
-                .setNegativeButton("No", null)
-                .show();
+        // הצגת דיאלוג אישור מחיקת רכיבה
+        private void showDeleteConfirmationDialog(Ride ride, int position) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("מחיקת רכיבה")
+                    .setMessage("האם אתה בטוח שברצונך למחוק רכיבה זו?")
+                    .setPositiveButton("כן", (dialog, which) -> {
+                        // קודם מחיקה ממסד הנתונים
+                        OmerUtils.deleteRide(getContext(),ride.getRideId());
+
+                        // לאחר מכן הסרה מהרשימה ועדכון המתאם
+                        rideList.remove(position);
+                        adapter.notifyDataSetChanged(); // שימוש בזה במקום notifyItemRemoved
+                    })
+                    .setNegativeButton("לא", null)
+                    .show();
+        }
     }
-}
-

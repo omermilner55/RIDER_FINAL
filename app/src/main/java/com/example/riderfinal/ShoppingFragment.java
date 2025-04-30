@@ -15,28 +15,29 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+// פרגמנט המציג את חנות הפרסים/הטבות שהמשתמש יכול לרכוש עם הנקודות שצבר
 public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.OnRewardClickListener {
 
-    private User user;
-    private int[] rewardIds = {1, 2, 3, 4, 5}; // Store reward IDs for reference
+    private User user;                          // המשתמש הנוכחי
+    private int[] rewardIds = {1, 2, 3, 4, 5};  // מערך מזהי הפרסים לשימוש
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // ניפוח הפריסה לפרגמנט זה
         View view = inflater.inflate(R.layout.fragment_shop, container, false);
         TextView yourpoints = view.findViewById(R.id.yourpoints);
         RecyclerView recyclerView = view.findViewById(R.id.itemsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Get current user from SharedPreferences
+        // קבלת המשתמש הנוכחי מה-SharedPreferences
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("user_prefs", MODE_PRIVATE);
         String useremail = sharedPreferences.getString("useremail", "");
 
         user = OmerUtils.getUserByEmail(getContext(),useremail);
-        yourpoints.setText("Your Points: " + user.getUserPoints() + " pt");
+        yourpoints.setText("הנקודות שלך: " + user.getUserPoints() + " נק'");
 
-        // Get reward names for display
+        // קבלת שמות הפרסים להצגה
         String[] items = {
                 OmerUtils.getRewardById(getContext(), rewardIds[0]).getRewardName(),
                 OmerUtils.getRewardById(getContext(), rewardIds[1]).getRewardName(),
@@ -45,7 +46,7 @@ public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.
                 OmerUtils.getRewardById(getContext(), rewardIds[4]).getRewardName()
         };
 
-        // Fixed array size to match items array
+        // מערך תמונות קבוע שתואם את מערך הפריטים
         int[] itemsImage = {
                 R.drawable.alien1234,
                 R.drawable.healthshake,
@@ -54,25 +55,25 @@ public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.
                 R.drawable.electric1234
         };
 
-        // Set adapter with click listener
+        // הגדרת המתאם עם מאזין לחיצה
         CustomRecyclerAdapter adapter = new CustomRecyclerAdapter(items, itemsImage, this);
         recyclerView.setAdapter(adapter);
 
         return view;
     }
 
-    // Click listener implementation - handle reward selection
+    // מימוש מאזין לחיצה - טיפול בבחירת פרס
     @Override
     public void onRewardClick(int position) {
-        // Create new instance of RewardsDetails with reward ID
+        // יצירת מופע חדש של RewardsDetails עם מזהה הפרס
         RewardsDetails rewardsDetails = new RewardsDetails();
 
-        // Pass reward ID as an argument
+        // העברת מזהה הפרס כארגומנט
         Bundle args = new Bundle();
         args.putInt("reward_id", rewardIds[position]);
         rewardsDetails.setArguments(args);
 
-        // Navigate to reward details fragment
+        // ניווט לפרגמנט פרטי הפרס
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, rewardsDetails)
                 .addToBackStack(null)
