@@ -77,18 +77,18 @@ public class OmerUtils {
     private static int bonusAwarded = 0;
 
 
-    // Format current time
+    // מחזירה את השעה הנוכחית בפורמט של שעות:דקות:שניות
     public static String getCurrentTime() {
         return new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
     }
 
-    // Format today's date
+    // מחזירה את התאריך של היום הנוכחי בפורמט של יום/חודש/שנה
     public static String getTodaysDate() {
         return new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
     }
 
 
-    // Get a formatted location address
+    // מקבלת מיקום ומחזירה כתובת אנושית (Street, City וכו') בעזרת Geocoder
     public static String getLocationAddress(Context context, Location location) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         try {
@@ -102,7 +102,7 @@ public class OmerUtils {
         return "Unknown location";
     }
 
-    // Calculate distance
+    // מחשבת את המרחק הכולל בין רשימת מיקומים
     public static double calculateDistance(List<Location> locationList) {
         double totalDistance = 0;
         if (locationList.size() > 1) {
@@ -113,7 +113,7 @@ public class OmerUtils {
         return totalDistance;
     }
 
-    // Change fragment layout
+    // משנה את הגובה של פרגמנט מסוים בהתאם לפרמטר
     public static void changeFragmentLayout(FrameLayout frameLayout, int height) {
         if (frameLayout != null) {
             ViewGroup.LayoutParams params = frameLayout.getLayoutParams();
@@ -124,7 +124,7 @@ public class OmerUtils {
         }
     }
 
-    // Saving map photo path to database
+    // שומרת תמונת מפה בזיכרון הפנימי של המכשיר ומחזירה את הנתיב לקובץ
     public static String saveBitmapToInternalStorage(Context context, Bitmap bitmap, int rideId) {
         FileOutputStream fos = null;
         try {
@@ -146,7 +146,7 @@ public class OmerUtils {
             }
         }
     }
-
+    // מכניסה נתוני נסיעה חדשה לטבלת הרכיבות בבסיס הנתונים
     public static void insertNewRideToDatabase(Context context, HelperDB helperDB, int rideID, List<Location> locationList) {
         try {
             // בדיקה שהרשימה לא ריקה
@@ -192,6 +192,7 @@ public class OmerUtils {
         }
     }
 
+    // מעדכנת את נתוני הנסיעה (מרחק, מהירות, משך וכו') בבסיס הנתונים לאחר סיום נסיעה
     public static void updateRideDataInDatabase(Context context, HelperDB helperDB, int rideID,
                                                 List<Location> locationList, long startTime) {
         try {
@@ -241,6 +242,8 @@ public class OmerUtils {
             Toast.makeText(context, "Error updating ride: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    // מעדכנת את נקודות המשתמש בבסיס הנתונים לאחר נסיעה
     public static void updateUserPoints(Context context, SQLiteDatabase db, int newPoints) {
         SharedPreferences prefs = context.getSharedPreferences("user_prefs", MODE_PRIVATE);
         String useremail = prefs.getString("useremail", "");
@@ -258,7 +261,7 @@ public class OmerUtils {
     }
 
 
-    // Format time from milliseconds to HH:mm:ss
+    // ממירה זמן ממילישניות לפורמט של שעות:דקות:שניות
     public static String formatTime(long milliseconds) {
         long seconds = (milliseconds / 1000) % 60;
         long minutes = (milliseconds / (1000 * 60)) % 60;
@@ -266,7 +269,7 @@ public class OmerUtils {
         return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds);
     }
 
-    // Format distance to meters or kilometers
+    // ממירה מרחק למטרים או קילומטרים עם פורמט תצוגה נוח
     public static String formatDistance(double distance) {
         DecimalFormat df = new DecimalFormat("#.##");
         return distance < 1000 ?
@@ -274,12 +277,13 @@ public class OmerUtils {
                 df.format(distance / 1000) + " km";
     }
 
-    // Format speed from m/s to km/h
+    // ממירה מהירות ממטר לשנייה לקמ"ש ומחזירה כתוב בפורמט תצוגה
     public static String formatSpeed(float speedKph) {
         DecimalFormat df = new DecimalFormat("#.##");
         return df.format(speedKph) + " km/h";
     }
 
+    // מאפסת את התצוגה של הממשק (טיימר, מרחק, מהירות, נקודות) לאחר עצירה
     public static void resetUi(TextView timerTxt, TextView distanceTxt,
                                TextView speedTxt, TextView pointsTxt) {
         timerTxt.setText("00:00:00");
@@ -288,7 +292,7 @@ public class OmerUtils {
         pointsTxt.setText("Points: 0000 pt");
     }
 
-    // צריך לשנות את הפונקציה ב-OmerUtils ל:
+    // מאתחלת קו פוליליין חדש למפת GoogleMap
     public static Polyline initializePolyline(GoogleMap googleMap) {
         if (googleMap != null) {
             PolylineOptions polylineOptions = new PolylineOptions()
@@ -301,6 +305,7 @@ public class OmerUtils {
 
 
     @SuppressLint("MissingPermission")
+    // שומרת צילום של מפת המסלול ומעדכנת את הנתיב לקובץ בבסיס הנתונים
     public static void saveMapSnapshot(GoogleMap googleMap, List<Location> locationList,
                                        Context context, HelperDB helperDB, int rideID) {
         if (googleMap != null && !locationList.isEmpty()) {
@@ -356,6 +361,7 @@ public class OmerUtils {
         }
     }
 
+    // מעדכנת את הממשק החי (UI) עם נתוני מרחק, מהירות ונקודות בעת הנסיעה
     public static void updateValuesInUi(List<Location> locationList, boolean isPlaying,
                                         TextView distanceTxt, TextView speedTxt, TextView pointsTxt) {
         if (!isPlaying) {
@@ -388,6 +394,7 @@ public class OmerUtils {
         }
     }
 
+    // מחשבת את הנקודות שהמשתמש צבר לפי המהירות והמרחק, כולל בונוסים/קנסות
     public static int calculatePoints(float currentSpeed, double distance, long currentTime) {
         // בדיקה אם המהירות חוקית
         boolean isCurrentSpeedLegal = currentSpeed >= MIN_LEGAL_SPEED && currentSpeed <= MAX_LEGAL_SPEED;
@@ -440,6 +447,7 @@ public class OmerUtils {
         bonusAwarded = 0;
     }
 
+    // מחזירה את כל הנסיעות של המשתמש הנוכחי, ממויינות לפי תאריך
     public static ArrayList<Ride> getAllRidesSortedByDate(Context context) {
         ArrayList<Ride> rides = new ArrayList<>();
 
@@ -519,24 +527,7 @@ public class OmerUtils {
         return rides;
     }
 
-    /**
-     * Update user points
-     *
-     * @param context   The application context
-     * @param username  Username to update
-     * @param newPoints New points value
-     * @return true if update was successful, false otherwise
-     */
-
-
-    /**
-     * Purchase a reward for a user
-     *
-     * @param context  The application context
-     * @param email    User's email
-     * @param rewardId ID of the reward to purchase
-     * @return Redemption code if successful, null otherwise
-     */
+    // מאפשרת למשתמש לרכוש פרס אם יש לו מספיק נקודות, ומחזירה קוד מימוש
     public static String purchaseReward(Context context, String email, int rewardId) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = null;
@@ -621,14 +612,7 @@ public class OmerUtils {
         }
     }
 
-    /**
-     * Check if a user has already purchased a specific reward
-     *
-     * @param context  The application context
-     * @param username Username to check
-     * @param rewardId Reward ID to check
-     * @return true if user has purchased the reward, false otherwise
-     */
+    // בודקת האם המשתמש כבר רכש את הפרס הזה בעבר
     public static boolean hasUserPurchasedReward(Context context, String username, int rewardId) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();
@@ -657,14 +641,7 @@ public class OmerUtils {
         }
     }
 
-    /**
-     * Check if user credentials are valid
-     *
-     * @param context  The application context
-     * @param email    User's email
-     * @param password User's password
-     * @return true if credentials are valid, false otherwise
-     */
+    // בודקת האם קיים משתמש עם המייל והסיסמה הנתונים
     public static boolean checkUser(Context context, String email, String password) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();
@@ -676,12 +653,7 @@ public class OmerUtils {
         return exists;
     }
 
-    /**
-     * Get the next ride ID to use when creating a new ride
-     *
-     * @param context The application context
-     * @return Next available ride ID
-     */
+    // מחזירה את מזהה הנסיעה הבא (Ride ID) בהתבסס על הערך המקסימלי הקיים בטבלה
     public static int getNextRideId(Context context) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();
@@ -696,28 +668,20 @@ public class OmerUtils {
         return nextId;
     }
 
-    /**
-     * Get current date in string format
-     *
-     * @return Current date string in "yyyy-MM-dd HH:mm:ss" format
-     */
+    // מחזירה את התאריך והשעה הנוכחיים בפורמט בסיסי (לשימוש בקוד מימוש)
     private static String getCurrentDate() {
         java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return dateFormat.format(new java.util.Date());
     }
 
-    /**
-     * Generate a unique redemption code for a reward
-     *
-     * @param rewardId ID of the reward
-     * @return Unique redemption code
-     */
+    // יוצרת קוד מימוש ייחודי לרכישת פרס
     private static String generateRedemptionCode(int rewardId) {
         String timestamp = String.valueOf(System.currentTimeMillis());
         String randomDigits = String.valueOf((int) (Math.random() * 10000));
         return "RWD-" + rewardId + "-" + timestamp.substring(timestamp.length() - 5) + "-" + randomDigits;
     }
 
+    // מחזירה אובייקט משתמש לפי מייל
     public static User getUserByEmail(Context context, String email) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();
@@ -756,6 +720,7 @@ public class OmerUtils {
         return user;
     }
 
+    // מחזירה אובייקט פרס לפי מזהה
     public static Reward getRewardById(Context context, int rewardId) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();
@@ -783,7 +748,7 @@ public class OmerUtils {
         return reward;
     }
 
-
+    // מוחקת רשומת נסיעה לפי מזהה
     public static boolean deleteRide(Context context, int rideId) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getWritableDatabase();
@@ -802,6 +767,7 @@ public class OmerUtils {
         }
     }
 
+    // מחזירה את קוד המימוש של פרס שנרכש על ידי המשתמש
     public static String getSavedRedemptionCode(Context context, String username, int rewardId) {
         HelperDB helperDB = new HelperDB(context);
         SQLiteDatabase db = helperDB.getReadableDatabase();

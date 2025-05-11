@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import static android.content.Context.MODE_PRIVATE;
 
 // פרגמנט המציג פרטים מלאים של פרס ומאפשר רכישה שלו
-public class RewardsDetails extends Fragment {
+public class RewardsDetailsFragment extends Fragment {
 
     // משתני המחלקה
     private Reward reward;               // אובייקט הפרס המוצג
@@ -71,7 +71,7 @@ public class RewardsDetails extends Fragment {
             descText.setText(reward.getRewardDescription());
 
             // הגדרת נקודות הפרס
-            rewardPointsText.setText("כמות הנקודות הנדרשת: " + reward.getRewardPointsPrice());
+            rewardPointsText.setText("Required amount of points: " + reward.getRewardPointsPrice());
 
             // בדיקה אם המשתמש כבר רכש את הפרס הזה
             boolean alreadyPurchased = OmerUtils.hasUserPurchasedReward(getContext(), user.getUserName(), reward.getRewardId());
@@ -83,7 +83,7 @@ public class RewardsDetails extends Fragment {
                 rewardCodeTitle.setVisibility(View.VISIBLE);
                 rewardCode.setVisibility(View.VISIBLE);
                 purchaseButton.setVisibility(View.GONE);
-                statusMessage.setText("כבר רכשת את הפרס הזה!");
+                statusMessage.setText("You have purchased this reward!");
                 statusMessage.setVisibility(View.VISIBLE);
             } else {
                 // המשתמש עדיין לא רכש את הפרס
@@ -93,10 +93,10 @@ public class RewardsDetails extends Fragment {
                 // בדיקה אם למשתמש יש מספיק נקודות
                 if (user.getUserPoints() >= reward.getRewardPointsPrice()) {
                     purchaseButton.setEnabled(true);
-                    statusMessage.setText("יש לך מספיק נקודות לרכישת הפרס!");
+                    statusMessage.setText("You have enough points to purchase this reward!");
                 } else {
                     purchaseButton.setEnabled(false);
-                    statusMessage.setText("אין לך מספיק נקודות לרכישת הפרס");
+                    statusMessage.setText("You don't have enough points to purchase this reward.");
                 }
                 statusMessage.setVisibility(View.VISIBLE);
                 purchaseButton.setVisibility(View.VISIBLE);
@@ -141,7 +141,7 @@ public class RewardsDetails extends Fragment {
     private void purchaseReward() {
         // בדיקה כפולה אם למשתמש יש מספיק נקודות
         if (user.getUserPoints() < reward.getRewardPointsPrice()) {
-            Toast.makeText(requireContext(), "אין לך מספיק נקודות!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "You don't have enough points!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -160,16 +160,16 @@ public class RewardsDetails extends Fragment {
             purchaseButton.setVisibility(View.GONE);
 
             // עדכון הודעת סטטוס
-            statusMessage.setText("רכשת בהצלחה את הפרס!");
+            statusMessage.setText("You have successfully purchased this reward!");
 
             // שמירת נקודות המשתמש החדשות מקומית
             user.setUserPoints(user.getUserPoints() - reward.getRewardPointsPrice());
 
             // הצגת הודעת הצלחה
-            Toast.makeText(requireContext(), "רכשת בהצלחה את הפרס!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "You have successfully purchased this reward!", Toast.LENGTH_SHORT).show();
         } else {
             // הרכישה נכשלה
-            Toast.makeText(requireContext(), "אירעה שגיאה בעת רכישת הפרס. נסה שוב", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "An error occurred while purchasing the reward. Please try again.", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -6,7 +6,7 @@
     android:background="@color/black"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".RewardsDetails">
+    tools:context=".RewardsDetailsFragment">
 
     <TextView
         android:id="@+id/title"

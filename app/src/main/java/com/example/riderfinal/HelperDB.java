@@ -132,9 +132,9 @@ public class HelperDB extends SQLiteOpenHelper {
         Object[][] initialRewards = {
                 // {id, שם, URI של תמונה, נקודות נדרשות, תיאור}
                 {1, "20% discount for a subscription to the Alien Network", "alien1234", 500, "Get an exclusive 20% discount on your subscription to the Alien Network. Experience premium content and exclusive features."},
-                {2, "Free ReShake drink size L", "headphones_icon", 1000, "Enjoy a free large ReShake drink at any of our partner locations. Perfect refreshment after your ride!"},
-                {3, "25% discount in the Sports Hall", "bike_icon", 550, "Save 25% on your next purchase at the Sports Hall. Valid for all equipment and apparel."},
-                {4, "JBJ headphones for 99₪", "helmet_icon", 3000, "Get premium JBJ headphones for just 99₪ instead of the regular price. Limited time offer."},
+                {2, "Free ReShake drink size L", "healthshake", 1000, "Enjoy a free large ReShake drink at any of our partner locations. Perfect refreshment after your ride!"},
+                {3, "25% discount in the Sports Hall", "sports1234", 550, "Save 25% on your next purchase at the Sports Hall. Valid for all equipment and apparel."},
+                {4, "JBJ headphones for 99₪", "hf1", 3000, "Get premium JBJ headphones for just 99₪ instead of the regular price. Limited time offer."},
                 {5, "15% discount at the electric king", "electric1234", 100, "Save 15% on your next purchase at the Electric King. Valid for all electronic devices and accessories."}
         };
 

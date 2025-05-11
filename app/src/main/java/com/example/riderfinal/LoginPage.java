@@ -63,15 +63,15 @@ public class LoginPage extends AppCompatActivity {
 
                 // בדיקת תקינות הקלט
                 if (TextUtils.isEmpty(email)) {
-                    Email.setError("יש להזין כתובת דוא\"ל");
+                    Email.setError("Email required");
                     return;
                 }
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    Email.setError("פורמט דוא\"ל לא תקין");
+                    Email.setError("Invalid email format");
                     return;
                 }
                 if (TextUtils.isEmpty(password)) {
-                    Pwd.setError("יש להזין סיסמה");
+                    Pwd.setError("Password required");
                     return;
                 }
                 else {
@@ -93,10 +93,10 @@ public class LoginPage extends AppCompatActivity {
                         Intent intent = new Intent(LoginPage.this, HomeActivity.class);
                         startActivity(intent);
                         finish();
-                        Toast.makeText(LoginPage.this, "ההתחברות הצליחה!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginPage.this, "Connection successful", Toast.LENGTH_SHORT).show();
                     } else {
                         // הצגת הודעת שגיאה עבור פרטים שגויים
-                        Toast.makeText(LoginPage.this, "סיסמה או דוא\"ל שגויים!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginPage.this, "Incorrect password or email!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

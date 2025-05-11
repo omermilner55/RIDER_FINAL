@@ -35,7 +35,7 @@ public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.
         String useremail = sharedPreferences.getString("useremail", "");
 
         user = OmerUtils.getUserByEmail(getContext(),useremail);
-        yourpoints.setText("הנקודות שלך: " + user.getUserPoints() + " נק'");
+        yourpoints.setText("Your points: " + user.getUserPoints() + " " + "pt");
 
         // קבלת שמות הפרסים להצגה
         String[] items = {
@@ -66,7 +66,7 @@ public class ShoppingFragment extends Fragment implements CustomRecyclerAdapter.
     @Override
     public void onRewardClick(int position) {
         // יצירת מופע חדש של RewardsDetails עם מזהה הפרס
-        RewardsDetails rewardsDetails = new RewardsDetails();
+        RewardsDetailsFragment rewardsDetails = new RewardsDetailsFragment();
 
         // העברת מזהה הפרס כארגומנט
         Bundle args = new Bundle();

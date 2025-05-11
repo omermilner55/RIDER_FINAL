@@ -107,24 +107,24 @@ public class Register extends AppCompatActivity {
 
         // בדיקה אם האימייל, שם המשתמש או מספר הטלפון כבר קיימים במערכת
         if (isFieldExists(HelperDB.USER_EMAIL, email)) {
-            Email.setError("כתובת האימייל כבר קיימת במערכת!");
+            Email.setError("This email address already exists!");
             Email.requestFocus();
             return;
         }
         if (isFieldExists(HelperDB.USER_PHONE, phonenum)) {
-            Phonenum.setError("מספר הטלפון כבר קיים במערכת!");
+            Phonenum.setError("This phone number already exists!");
             Phonenum.requestFocus();
             return;
         }
         if (isFieldExists(HelperDB.USER_NAME, username)) {
-            Username.setError("שם המשתמש כבר קיים במערכת!");
+            Username.setError("This username already exists!");
             Username.requestFocus();
             return;
         }
 
         // הוספת המשתמש החדש למסד הנתונים
         if (registerUser(username, email, pwd, phonenum)) {
-            Toast.makeText(Register.this, "ההרשמה הצליחה!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Register.this, "Registration was successful!", Toast.LENGTH_SHORT).show();
             // שמירת פרטי המשתמש להתחברות אוטומטית
             SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -137,44 +137,44 @@ public class Register extends AppCompatActivity {
             startActivity(intent);
             finish();  // סגירת המסך הנוכחי
         } else {
-            Toast.makeText(Register.this, "ההרשמה נכשלה!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Register.this, "Registration failed!", Toast.LENGTH_SHORT).show();
         }
     }
 
     // בדיקת תקינות הקלט של המשתמש
     private boolean validateInput(String username, String email, String pwd, String retype, String phonenum) {
         if (TextUtils.isEmpty(username)) {
-            Username.setError("יש להזין שם משתמש");
+            Username.setError("Username required");
             Username.requestFocus();
             return false;
         }
         if (TextUtils.isEmpty(email)) {
-            Email.setError("יש להזין כתובת אימייל");
+            Email.setError("Email required");
             Email.requestFocus();
             return false;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Email.setError("פורמט האימייל אינו תקין");
+            Email.setError("The email format is incorrect");
             Email.requestFocus();
             return false;
         }
         if (TextUtils.isEmpty(pwd)) {
-            Pwd.setError("יש להזין סיסמה");
+            Pwd.setError("Password required");
             Pwd.requestFocus();
             return false;
         }
         if (TextUtils.isEmpty(retype)) {
-            ReType.setError("יש להזין אימות סיסמה");
+            ReType.setError("Password verification required");
             ReType.requestFocus();
             return false;
         }
         if (!pwd.equals(retype)) {
-            ReType.setError("הסיסמאות אינן תואמות");
+            ReType.setError("The Passwords do not match");
             ReType.requestFocus();
             return false;
         }
         if (TextUtils.isEmpty(phonenum)) {
-            Phonenum.setError("יש להזין מספר טלפון");
+            Phonenum.setError("Phone Number required");
             Phonenum.requestFocus();
             return false;
         }

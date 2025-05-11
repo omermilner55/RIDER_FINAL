@@ -76,9 +76,9 @@
         // הצגת דיאלוג אישור מחיקת רכיבה
         private void showDeleteConfirmationDialog(Ride ride, int position) {
             new AlertDialog.Builder(getContext())
-                    .setTitle("מחיקת רכיבה")
-                    .setMessage("האם אתה בטוח שברצונך למחוק רכיבה זו?")
-                    .setPositiveButton("כן", (dialog, which) -> {
+                    .setTitle("Delete Ride")
+                    .setMessage("Are you sure you want to delete this ride?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
                         // קודם מחיקה ממסד הנתונים
                         OmerUtils.deleteRide(getContext(),ride.getRideId());
 
@@ -86,7 +86,7 @@
                         rideList.remove(position);
                         adapter.notifyDataSetChanged(); // שימוש בזה במקום notifyItemRemoved
                     })
-                    .setNegativeButton("לא", null)
+                    .setNegativeButton("No", null)
                     .show();
         }
     }
