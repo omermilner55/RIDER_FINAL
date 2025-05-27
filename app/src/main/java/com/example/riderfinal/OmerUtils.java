@@ -65,7 +65,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class OmerUtils {
-    private static final float MIN_LEGAL_SPEED = 5.0f; // km/h
+    private static final float MIN_LEGAL_SPEED = 10.0f; // km/h
     private static final float MAX_LEGAL_SPEED = 26.5f; // km/h
     private static final float PENALTY_SPEED_THRESHOLD = 27.0f; // km/h
     private static final long CONTINUOUS_LEGAL_RIDE_THRESHOLD = 30 * 60 * 1000; // 30 minutes in milliseconds

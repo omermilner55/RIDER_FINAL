@@ -1,0 +1,42 @@
+@startuml
+class com.example.riderfinal.HomeActivity {
+- String currentUsername
+~ ImageButton detailsButton
+# void onCreate(Bundle)
+- void showUserPopupMenu(View)
+- void logout()
+- void replaceFragment(Fragment)
+}
+
+
+class com.example.riderfinal.HomeScreenFragment {
+- ImageButton StartStop
+- TextView Timertxt
+- Timer timer
+- TimerTask timerTask
+- long startTime
+- int rideID1
+- HelperDB helperDB
+- GoogleMap googleMap
+- boolean isCameraFollowing
+- boolean isPlaying
+- BroadcastReceiver locationReceiver
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void startRideTracking()
+- void stopRideTracking()
+- void startTimer()
+- void stopTimer()
++ void onMapReady(GoogleMap)
++ void onResume()
++ void onPause()
++ void onDestroy()
+- void openLastRideDetailsWithDelay()
+}
+
+
+
+
+androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.HomeActivity
+com.google.android.gms.maps.OnMapReadyCallback <|.. com.example.riderfinal.HomeScreenFragment
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.HomeScreenFragment
+@enduml

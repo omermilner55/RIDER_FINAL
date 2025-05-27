@@ -132,7 +132,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
                 // עצירת הטיימר
                 stopTimer();
                 // שינוי גודל הפרגמנט לתצוגה רגילה
-                OmerUtils.changeFragmentLayout(frameLayout, 2000);
+                OmerUtils.changeFragmentLayout(frameLayout, 2200);
                 // פתיחת מסך פרטי הנסיעה האחרונה לאחר השהייה
                 openLastRideDetailsWithDelay();
                 // איפוס תצוגת הערכים בממשק
@@ -182,7 +182,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
 
     // התחלת מעקב אחר מיקום הנסיעה
     private void startRideTracking() {
-        Toast.makeText(requireContext(), "Starting ride tracking", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(requireContext(), "Starting ride tracking", Toast.LENGTH_SHORT).show();
         // הפעלת מעקב מצלמה אחרי המיקום
         isCameraFollowing = true;
         // איפוס מעקב הנקודות
@@ -194,13 +194,13 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
         // בדיקת גרסת אנדרואיד להפעלת השירות בצורה המתאימה
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // בגרסאות חדשות יש להפעיל כשירות קדמי
-            Toast.makeText(requireContext(),
-                    "Starting foreground service", Toast.LENGTH_SHORT).show();
+          //  Toast.makeText(requireContext(),
+                 //   "Starting foreground service", Toast.LENGTH_SHORT).show();
             requireContext().startForegroundService(serviceIntent);
         } else {
             // בגרסאות ישנות ניתן להפעיל כשירות רגיל
-            Toast.makeText(requireContext(),
-                    "Starting regular service", Toast.LENGTH_SHORT).show();
+         //   Toast.makeText(requireContext(),
+               //     "Starting regular service", Toast.LENGTH_SHORT).show();
             requireContext().startService(serviceIntent);
         }
 
@@ -214,8 +214,8 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
             // רישום מקלט בגרסה ישנה של אנדרואיד
             requireContext().registerReceiver(locationReceiver, filter);
         }
-        Toast.makeText(requireContext(),
-                "Receiver registered", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(requireContext(),
+             //   "Receiver registered", Toast.LENGTH_SHORT).show();
     }
 
     // עצירת מעקב אחר מיקום הנסיעה
@@ -277,7 +277,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        Toast.makeText(requireContext(), "Map is ready", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(requireContext(), "Map is ready", Toast.LENGTH_SHORT).show();
 
         // הגדרות ממשק המשתמש של המפה
         googleMap.getUiSettings().setMyLocationButtonEnabled(true); // הפעלת כפתור המיקום
@@ -286,7 +286,7 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
         try {
             // הפעלת שכבת המיקום הנוכחי על המפה
             googleMap.setMyLocationEnabled(true);
-            Toast.makeText(requireContext(), "Location layer enabled", Toast.LENGTH_SHORT).show();
+          //  Toast.makeText(requireContext(), "Location layer enabled", Toast.LENGTH_SHORT).show();
 
             // אם יש מיקומים קיימים ברשימה, מעבר למיקום האחרון
             if (!locationList.isEmpty()) {
@@ -295,12 +295,14 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
 
                 // הזזת המפה למיקום האחרון עם אנימציה
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17f));
-                Toast.makeText(requireContext(), "Moving to last location: " +
-                        lastLocation.getLatitude() + ", " + lastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(requireContext(), "Moving to last location: " +
+                     //   lastLocation.getLatitude() + ", " + lastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
             }
         } catch (SecurityException e) {
             // טיפול במקרה של הרשאות חסרות
             Toast.makeText(requireContext(), "Please enable location permissions", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getContext(), MustUseGPS.class);
+            startActivity(intent);
             e.printStackTrace();
         }
     }
@@ -425,22 +427,20 @@ public class HomeScreenFragment extends Fragment implements OnMapReadyCallback {
                 }
             }, 5000);
         } else {
-            // במקרה של שגיאה בשמירת הנסיעה - הצגת דיאלוג שגיאה
-            AlertDialog dialog = new AlertDialog.Builder(requireContext())
+            // במקרה של שגיאה בשמירת הנסיעה - הצגת דיאלוג שגיאה עם כפתור OK לסגירת האפליקציה
+            new AlertDialog.Builder(requireContext())
                     .setTitle("An error occurred while saving the ride")
-                    .setMessage("Close the app and start a new ride")
+                    .setMessage("The application will restart. Please open it again and start a new ride.")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        // מחיקת נתוני הנסיעה השגויים
+                        OmerUtils.deleteRide(requireContext(), rideID1);
+                        // סגירת האפליקציה לגמרי
+                        requireActivity().finishAffinity();
+                        // במקרה הצורך, ניתן להוסיף גם את השורה הבאה לסגירה מוחלטת
+                        System.exit(0);
+                    })
                     .setCancelable(false)
-                    .create();
-
-            dialog.show();
-            // מחיקת נתוני הנסיעה השגויים
-            OmerUtils.deleteRide(requireContext(), rideID1);
-            // מעבר למסך היסטוריית הנסיעות
-            RideHistoryFragment historyFragment = new RideHistoryFragment();
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, historyFragment)
-                    .addToBackStack(null)
-                    .commit();
+                    .show();
         }
         checkCursor.close();
         dbCheck.close();

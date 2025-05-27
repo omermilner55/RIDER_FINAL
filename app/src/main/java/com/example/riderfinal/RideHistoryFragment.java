@@ -37,7 +37,7 @@
 
             // קבלת רשימת הרכיבות ממסד הנתונים
             rideList = OmerUtils.getAllRidesSortedByDate(getContext());
-            Toast.makeText(getContext(), "מספר רכיבות: " + rideList.size(), Toast.LENGTH_SHORT).show();
+     //       Toast.makeText(getContext(), "מספר רכיבות: " + rideList.size(), Toast.LENGTH_SHORT).show();
 
             // יצירת המתאם והצמדתו לרסייקלר-ויו
             adapter = new RideAdapter(rideList, requireContext());

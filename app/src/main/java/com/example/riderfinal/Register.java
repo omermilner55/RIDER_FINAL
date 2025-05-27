@@ -35,7 +35,7 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // הפעלת תצוגת קצה לקצה (ללא שוליים)
         EdgeToEdge.enable(this);
-        // הגדרת הפריסה למסך זה
+        // הגדרת היסה למסך זה
         setContentView(R.layout.activity_register);
 
         // אתחול מסד הנתונים
@@ -169,7 +169,7 @@ public class Register extends AppCompatActivity {
             return false;
         }
         if (!pwd.equals(retype)) {
-            ReType.setError("The Passwords do not match");
+            ReType.setError("Passwords do not match");
             ReType.requestFocus();
             return false;
         }

@@ -35,22 +35,22 @@
 
         <TextView
             android:id="@+id/DistanceTxt"
-            android:layout_width="135dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/dinpro_medium"
             android:text=" Distance: 000 m"
             android:textColor="@color/white"
-            android:textSize="16dp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/SpeedTxt"
-            android:layout_width="160dp"
+            android:layout_width="125dp"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:text="Speed: 000.00 km/h"
             android:fontFamily="@font/dinpro_medium"
             android:layout_gravity="center_horizontal"
-            android:textSize="16dp" />
+            android:textSize="14dp" />
 
         <TextView
             android:id="@+id/PointsTxt"
@@ -59,7 +59,8 @@
             android:textColor="@color/white"
             android:text="Points: 0000 pt"
             android:fontFamily="@font/dinpro_medium"
-            android:textSize="16dp" />
+            android:layout_marginLeft="20dp"
+            android:textSize="14dp" />
     </LinearLayout>
 
 

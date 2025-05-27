@@ -1,4 +1,17 @@
 @startuml
+class com.example.riderfinal.RewardsDetailsFragment {
+- Reward reward
+- HelperDB helperDB
+- User user
+- String useremail
+- TextView rewardPointsText
+- TextView statusMessage
+- Button purchaseButton
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void purchaseReward()
+}
+
+
 class com.example.riderfinal.RideAdapter {
 - ArrayList<Ride> rideList
 - Context context
@@ -99,19 +112,6 @@ class com.example.riderfinal.CustomRecyclerAdapter$ViewHolder {
 ~ TextView textView
 ~ ImageView imageView
 }
-
-class com.example.riderfinal.RewardsDetails {
-- Reward reward
-- HelperDB helperDB
-- User user
-- String useremail
-- TextView rewardPointsText
-- TextView statusMessage
-- Button purchaseButton
-+ View onCreateView(LayoutInflater,ViewGroup,Bundle)
-- void purchaseReward()
-}
-
 
 class com.example.riderfinal.HomeActivity {
 - String currentUsername
@@ -326,6 +326,9 @@ class com.example.riderfinal.HomeScreenFragment {
 class com.example.riderfinal.Ride {
 - int rideId
 - String date
+- String distance
+- String startLocation
+- String mapImagePath
 + int getRideId()
 + String getDate()
 + String getTime()
@@ -341,6 +344,7 @@ class com.example.riderfinal.Ride {
 
 
 
+androidx.fragment.app.Fragment <|-- com.example.riderfinal.RewardsDetailsFragment
 com.example.riderfinal.Adapter <|-- com.example.riderfinal.RideAdapter
 com.example.riderfinal.RideAdapter +.. com.example.riderfinal.RideAdapter$OnItemClickListener
 com.example.riderfinal.RideAdapter +.. com.example.riderfinal.RideAdapter$OnItemLongClickListener
@@ -352,7 +356,6 @@ com.example.riderfinal.Adapter <|-- com.example.riderfinal.CustomRecyclerAdapter
 com.example.riderfinal.CustomRecyclerAdapter +.. com.example.riderfinal.CustomRecyclerAdapter$OnRewardClickListener
 com.example.riderfinal.CustomRecyclerAdapter +.. com.example.riderfinal.CustomRecyclerAdapter$ViewHolder
 com.example.riderfinal.ViewHolder <|-- com.example.riderfinal.CustomRecyclerAdapter$ViewHolder
-androidx.fragment.app.Fragment <|-- com.example.riderfinal.RewardsDetails
 androidx.appcompat.app.AppCompatActivity <|-- com.example.riderfinal.HomeActivity
 java.io.Serializable <|.. com.example.riderfinal.Reward
 java.io.Serializable <|.. com.example.riderfinal.User
